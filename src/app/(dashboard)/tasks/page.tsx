@@ -123,7 +123,7 @@ export default function TasksPage() {
     onError: (error: Error) => toast.error(error.message),
   })
 
-  // Update mutation
+  // Update mutation with optimistic update
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<TaskInput> }) => {
       const res = await fetch(`/api/tasks/${id}`, {
@@ -134,13 +134,30 @@ export default function TasksPage() {
       if (!res.ok) throw new Error((await res.json()).error || "Failed to update")
       return res.json()
     },
+    onMutate: async ({ id, data }) => {
+      await queryClient.cancelQueries({ queryKey: ["tasks"] })
+      const previous = queryClient.getQueryData(["tasks", search, statusFilter, projectFilter])
+      
+      // Optimistic update
+      queryClient.setQueryData(["tasks", search, statusFilter, projectFilter], (old: any) => {
+        if (!old?.data) return old
+        return {
+          ...old,
+          data: old.data.map((t: any) => t.id === id ? { ...t, ...data } : t)
+        }
+      })
+      return { previous }
+    },
+    onError: (error: Error, _, context) => {
+      queryClient.setQueryData(["tasks", search, statusFilter, projectFilter], context?.previous)
+      toast.error(error.message)
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] })
       queryClient.invalidateQueries({ queryKey: ["projects"] })
       toast.success("Task updated!")
       handleCloseForm()
     },
-    onError: (error: Error) => toast.error(error.message),
   })
 
   // Delete mutation
