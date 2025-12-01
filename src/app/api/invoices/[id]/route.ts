@@ -18,7 +18,8 @@ export async function GET(
     const invoice = await prisma.invoice.findFirst({
       where: {
         id: params.id,
-        project: { userId: session.user.id },
+        project: { userId: session.user.id, deletedAt: null },
+        deletedAt: null,
       },
       include: {
         project: {
@@ -56,7 +57,8 @@ export async function PUT(
     const existing = await prisma.invoice.findFirst({
       where: {
         id: params.id,
-        project: { userId: session.user.id },
+        project: { userId: session.user.id, deletedAt: null },
+        deletedAt: null,
       },
     })
 
@@ -96,7 +98,7 @@ export async function PUT(
   }
 }
 
-// DELETE invoice
+// DELETE invoice (soft delete)
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -110,7 +112,8 @@ export async function DELETE(
     const existing = await prisma.invoice.findFirst({
       where: {
         id: params.id,
-        project: { userId: session.user.id },
+        project: { userId: session.user.id, deletedAt: null },
+        deletedAt: null,
       },
     })
 
@@ -118,8 +121,10 @@ export async function DELETE(
       return NextResponse.json({ error: "Invoice not found" }, { status: 404 })
     }
 
-    await prisma.invoice.delete({
+    // Soft delete
+    await prisma.invoice.update({
       where: { id: params.id },
+      data: { deletedAt: new Date() },
     })
 
     return NextResponse.json({ message: "Invoice deleted successfully" })

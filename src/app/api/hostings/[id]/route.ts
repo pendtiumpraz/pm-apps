@@ -18,7 +18,8 @@ export async function GET(
     const hosting = await prisma.hosting.findFirst({
       where: {
         id: params.id,
-        project: { userId: session.user.id },
+        project: { userId: session.user.id, deletedAt: null },
+        deletedAt: null,
       },
       include: {
         project: {
@@ -55,7 +56,8 @@ export async function PUT(
     const existing = await prisma.hosting.findFirst({
       where: {
         id: params.id,
-        project: { userId: session.user.id },
+        project: { userId: session.user.id, deletedAt: null },
+        deletedAt: null,
       },
     })
 
@@ -101,7 +103,7 @@ export async function PUT(
   }
 }
 
-// DELETE hosting
+// DELETE hosting (soft delete)
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -115,7 +117,8 @@ export async function DELETE(
     const existing = await prisma.hosting.findFirst({
       where: {
         id: params.id,
-        project: { userId: session.user.id },
+        project: { userId: session.user.id, deletedAt: null },
+        deletedAt: null,
       },
     })
 
@@ -123,8 +126,10 @@ export async function DELETE(
       return NextResponse.json({ error: "Hosting not found" }, { status: 404 })
     }
 
-    await prisma.hosting.delete({
+    // Soft delete
+    await prisma.hosting.update({
       where: { id: params.id },
+      data: { deletedAt: new Date() },
     })
 
     return NextResponse.json({ message: "Hosting deleted successfully" })

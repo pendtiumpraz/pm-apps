@@ -20,6 +20,7 @@ export async function GET(req: NextRequest) {
     const projects = await prisma.project.findMany({
       where: {
         userId: session.user.id,
+        deletedAt: null,
         ...(status && { status: status as any }),
         ...(type && { projectType: type as any }),
         ...(search && {

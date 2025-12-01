@@ -18,7 +18,8 @@ export async function GET(
     const payment = await prisma.payment.findFirst({
       where: {
         id: params.id,
-        project: { userId: session.user.id },
+        project: { userId: session.user.id, deletedAt: null },
+        deletedAt: null,
       },
       include: {
         project: {
@@ -56,7 +57,8 @@ export async function PUT(
     const existing = await prisma.payment.findFirst({
       where: {
         id: params.id,
-        project: { userId: session.user.id },
+        project: { userId: session.user.id, deletedAt: null },
+        deletedAt: null,
       },
     })
 
@@ -134,7 +136,7 @@ export async function PUT(
   }
 }
 
-// DELETE payment
+// DELETE payment (soft delete)
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -148,7 +150,8 @@ export async function DELETE(
     const existing = await prisma.payment.findFirst({
       where: {
         id: params.id,
-        project: { userId: session.user.id },
+        project: { userId: session.user.id, deletedAt: null },
+        deletedAt: null,
       },
     })
 
@@ -164,8 +167,10 @@ export async function DELETE(
       })
     }
 
-    await prisma.payment.delete({
+    // Soft delete
+    await prisma.payment.update({
       where: { id: params.id },
+      data: { deletedAt: new Date() },
     })
 
     return NextResponse.json({ message: "Payment deleted successfully" })

@@ -21,7 +21,8 @@ export async function GET(req: NextRequest) {
 
     const hostings = await prisma.hosting.findMany({
       where: {
-        project: { userId: session.user.id },
+        project: { userId: session.user.id, deletedAt: null },
+        deletedAt: null,
         ...(projectId && { projectId }),
         ...(expiring === "true" && {
           expiryDate: { lte: thirtyDaysFromNow },

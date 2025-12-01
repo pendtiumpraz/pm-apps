@@ -18,7 +18,8 @@ export async function GET(
     const domain = await prisma.domain.findFirst({
       where: {
         id: params.id,
-        project: { userId: session.user.id },
+        project: { userId: session.user.id, deletedAt: null },
+        deletedAt: null,
       },
       include: {
         project: {
@@ -55,7 +56,8 @@ export async function PUT(
     const existing = await prisma.domain.findFirst({
       where: {
         id: params.id,
-        project: { userId: session.user.id },
+        project: { userId: session.user.id, deletedAt: null },
+        deletedAt: null,
       },
     })
 
@@ -100,7 +102,7 @@ export async function PUT(
   }
 }
 
-// DELETE domain
+// DELETE domain (soft delete)
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -114,7 +116,8 @@ export async function DELETE(
     const existing = await prisma.domain.findFirst({
       where: {
         id: params.id,
-        project: { userId: session.user.id },
+        project: { userId: session.user.id, deletedAt: null },
+        deletedAt: null,
       },
     })
 
@@ -122,8 +125,10 @@ export async function DELETE(
       return NextResponse.json({ error: "Domain not found" }, { status: 404 })
     }
 
-    await prisma.domain.delete({
+    // Soft delete
+    await prisma.domain.update({
       where: { id: params.id },
+      data: { deletedAt: new Date() },
     })
 
     return NextResponse.json({ message: "Domain deleted successfully" })

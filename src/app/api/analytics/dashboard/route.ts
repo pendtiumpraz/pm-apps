@@ -31,29 +31,30 @@ export async function GET() {
       monthlyIncome,
     ] = await Promise.all([
       // Total projects
-      prisma.project.count({ where: { userId } }),
+      prisma.project.count({ where: { userId, deletedAt: null } }),
       
       // Projects by status
       prisma.project.groupBy({
         by: ["status"],
-        where: { userId },
+        where: { userId, deletedAt: null },
         _count: true,
       }),
       
       // Total tasks
-      prisma.task.count({ where: { project: { userId } } }),
+      prisma.task.count({ where: { project: { userId, deletedAt: null }, deletedAt: null } }),
       
       // Tasks by status
       prisma.task.groupBy({
         by: ["status"],
-        where: { project: { userId } },
+        where: { project: { userId, deletedAt: null }, deletedAt: null },
         _count: true,
       }),
       
       // Monthly payments (this month)
       prisma.payment.aggregate({
         where: {
-          project: { userId },
+          project: { userId, deletedAt: null },
+          deletedAt: null,
           status: "PAID",
           paymentDate: { gte: startOfMonth, lte: endOfMonth },
         },
@@ -63,7 +64,7 @@ export async function GET() {
       
       // Project financials
       prisma.project.aggregate({
-        where: { userId },
+        where: { userId, deletedAt: null },
         _sum: { totalValue: true, paidAmount: true },
       }),
       
@@ -71,6 +72,7 @@ export async function GET() {
       prisma.project.findMany({
         where: {
           userId,
+          deletedAt: null,
           status: { in: ["ACTIVE", "PLANNING", "REVIEW"] },
           deadline: {
             gte: now,
@@ -93,7 +95,8 @@ export async function GET() {
       // Expiring domains
       prisma.domain.findMany({
         where: {
-          project: { userId },
+          project: { userId, deletedAt: null },
+          deletedAt: null,
           expiryDate: { lte: thirtyDaysFromNow },
           status: { not: "EXPIRED" },
         },
@@ -110,7 +113,8 @@ export async function GET() {
       // Expiring hostings
       prisma.hosting.findMany({
         where: {
-          project: { userId },
+          project: { userId, deletedAt: null },
+          deletedAt: null,
           expiryDate: { lte: thirtyDaysFromNow },
           status: { not: "EXPIRED" },
         },

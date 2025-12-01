@@ -19,7 +19,8 @@ export async function GET(req: NextRequest) {
 
     const payments = await prisma.payment.findMany({
       where: {
-        project: { userId: session.user.id },
+        project: { userId: session.user.id, deletedAt: null },
+        deletedAt: null,
         ...(projectId && { projectId }),
         ...(status && { status: status as any }),
         ...(type && { paymentType: type as any }),

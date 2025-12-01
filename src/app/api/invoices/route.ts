@@ -19,7 +19,8 @@ export async function GET(req: NextRequest) {
 
     const invoices = await prisma.invoice.findMany({
       where: {
-        project: { userId: session.user.id },
+        project: { userId: session.user.id, deletedAt: null },
+        deletedAt: null,
         ...(projectId && { projectId }),
         ...(status && { status: status as any }),
       },

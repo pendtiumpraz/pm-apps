@@ -18,7 +18,8 @@ export async function GET(
     const task = await prisma.task.findFirst({
       where: {
         id: params.id,
-        project: { userId: session.user.id },
+        project: { userId: session.user.id, deletedAt: null },
+        deletedAt: null,
       },
       include: {
         project: {
@@ -56,7 +57,8 @@ export async function PUT(
     const existing = await prisma.task.findFirst({
       where: {
         id: params.id,
-        project: { userId: session.user.id },
+        project: { userId: session.user.id, deletedAt: null },
+        deletedAt: null,
       },
     })
 
@@ -128,7 +130,7 @@ export async function PUT(
   }
 }
 
-// DELETE task
+// DELETE task (soft delete)
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -143,7 +145,8 @@ export async function DELETE(
     const existing = await prisma.task.findFirst({
       where: {
         id: params.id,
-        project: { userId: session.user.id },
+        project: { userId: session.user.id, deletedAt: null },
+        deletedAt: null,
       },
     })
 
@@ -151,8 +154,10 @@ export async function DELETE(
       return NextResponse.json({ error: "Task not found" }, { status: 404 })
     }
 
-    await prisma.task.delete({
+    // Soft delete
+    await prisma.task.update({
       where: { id: params.id },
+      data: { deletedAt: new Date() },
     })
 
     return NextResponse.json({ message: "Task deleted successfully" })

@@ -19,6 +19,7 @@ export async function GET(
       where: {
         id: params.id,
         userId: session.user.id,
+        deletedAt: null,
       },
       include: {
         tasks: {
@@ -80,7 +81,7 @@ export async function PUT(
 
     // Check ownership
     const existing = await prisma.project.findFirst({
-      where: { id: params.id, userId: session.user.id },
+      where: { id: params.id, userId: session.user.id, deletedAt: null },
     })
 
     if (!existing) {
@@ -128,7 +129,7 @@ export async function PUT(
   }
 }
 
-// DELETE project
+// DELETE project (soft delete)
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -141,15 +142,29 @@ export async function DELETE(
 
     // Check ownership
     const existing = await prisma.project.findFirst({
-      where: { id: params.id, userId: session.user.id },
+      where: { id: params.id, userId: session.user.id, deletedAt: null },
     })
 
     if (!existing) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 })
     }
 
-    await prisma.project.delete({
+    // Soft delete
+    await prisma.project.update({
       where: { id: params.id },
+      data: { deletedAt: new Date() },
+    })
+
+    // Log activity
+    await prisma.activity.create({
+      data: {
+        userId: session.user.id,
+        projectId: params.id,
+        action: "DELETE",
+        entityType: "PROJECT",
+        entityId: params.id,
+        description: `Deleted project "${existing.name}"`,
+      },
     })
 
     return NextResponse.json({ message: "Project deleted successfully" })
