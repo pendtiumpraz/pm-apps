@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma"
 import { hostingSchema } from "@/lib/validations/project"
 import { z } from "zod"
 
+export const dynamic = "force-dynamic"
+
 // GET all hostings
 export async function GET(req: NextRequest) {
   try {

@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma"
 import { domainSchema } from "@/lib/validations/project"
 import { z } from "zod"
 
+export const dynamic = "force-dynamic"
+
 // GET single domain
 export async function GET(
   req: NextRequest,

@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma"
 import { taskSchema } from "@/lib/validations/project"
 import { z } from "zod"
 
+export const dynamic = "force-dynamic"
+
 // GET all tasks (with filters)
 export async function GET(req: NextRequest) {
   try {

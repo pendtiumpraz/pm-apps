@@ -5,6 +5,8 @@ import { invoiceSchema } from "@/lib/validations/project"
 import { generateInvoiceNumber } from "@/lib/utils"
 import { z } from "zod"
 
+export const dynamic = "force-dynamic"
+
 // GET all invoices
 export async function GET(req: NextRequest) {
   try {

@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma"
 import { paymentSchema } from "@/lib/validations/project"
 import { z } from "zod"
 
+export const dynamic = "force-dynamic"
+
 // GET single payment
 export async function GET(
   req: NextRequest,
