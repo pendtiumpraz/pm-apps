@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
+export const dynamic = "force-dynamic"
+
 export async function GET() {
   try {
     const session = await auth()
@@ -143,20 +145,15 @@ export async function GET() {
         take: 10,
       }),
       
-      // Monthly income (last 6 months)
-      prisma.$queryRaw`
-        SELECT 
-          EXTRACT(MONTH FROM "createdAt") as month,
-          EXTRACT(YEAR FROM "createdAt") as year,
-          SUM(amount) as total
-        FROM "Income"
-        WHERE "projectId" IN (
-          SELECT id FROM "Project" WHERE "userId" = ${userId}
-        )
-        AND "createdAt" >= ${new Date(now.getFullYear(), now.getMonth() - 5, 1)}
-        GROUP BY EXTRACT(MONTH FROM "createdAt"), EXTRACT(YEAR FROM "createdAt")
-        ORDER BY year DESC, month DESC
-      `,
+      // Monthly income (last 6 months) - simplified query
+      prisma.income.groupBy({
+        by: ["createdAt"],
+        where: {
+          project: { userId },
+          createdAt: { gte: new Date(now.getFullYear(), now.getMonth() - 5, 1) },
+        },
+        _sum: { amount: true },
+      }),
     ])
 
     // Process project status counts
