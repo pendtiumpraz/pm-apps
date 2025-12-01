@@ -13,12 +13,14 @@ interface TaskCardProps {
     status: string
     priority: string
     dueDate?: string | Date | null
+    createdAt?: string | Date
     project?: {
       id: string
       name: string
       color?: string | null
     }
   }
+  onClick?: () => void
   onEdit?: () => void
   onDelete?: () => void
   onStatusChange?: (status: string) => void
@@ -31,7 +33,7 @@ const priorityColors = {
   LOW: "bg-gray-500/10 text-gray-400 border-gray-500/20",
 }
 
-export function TaskCard({ task, onEdit, onDelete, onStatusChange }: TaskCardProps) {
+export function TaskCard({ task, onClick, onEdit, onDelete, onStatusChange }: TaskCardProps) {
   const [showMenu, setShowMenu] = useState(false)
 
   const daysUntilDue = task.dueDate ? getDaysUntil(task.dueDate) : null
@@ -40,10 +42,15 @@ export function TaskCard({ task, onEdit, onDelete, onStatusChange }: TaskCardPro
 
   return (
     <div
+      onClick={(e) => {
+        if ((e.target as HTMLElement).closest("button")) return
+        onClick?.()
+      }}
       className={cn(
         "group rounded-lg border bg-gray-900/50 p-4 transition-all",
         "hover:border-gray-700 hover:bg-gray-900",
-        isCompleted && "opacity-60"
+        isCompleted && "opacity-60",
+        onClick && "cursor-pointer"
       )}
     >
       <div className="flex items-start gap-3">

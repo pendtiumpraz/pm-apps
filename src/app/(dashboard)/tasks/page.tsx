@@ -2,12 +2,63 @@
 
 import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { Plus, Search, Filter } from "lucide-react"
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+  useDroppable,
+  useDraggable,
+} from "@dnd-kit/core"
+import { Plus, Search } from "lucide-react"
+
+// Droppable Column Component
+function DroppableColumn({ id, count, children }: { id: string; count: number; children: React.ReactNode }) {
+  const { setNodeRef, isOver } = useDroppable({ id })
+  
+  return (
+    <div ref={setNodeRef} className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-medium text-gray-400">{id.replace("_", " ")}</h3>
+        <span className="rounded-full bg-gray-800 px-2 py-0.5 text-xs text-gray-400">{count}</span>
+      </div>
+      <div className={`space-y-2 min-h-[100px] rounded-lg p-2 transition-colors ${isOver ? "bg-primary-500/10 border border-primary-500/30" : ""}`}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+// Draggable Task Component
+function DraggableTask({ task, children }: { task: any; children: React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: task.id })
+  
+  const style = transform ? {
+    transform: `translate(${transform.x}px, ${transform.y}px)`,
+  } : undefined
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      className={`cursor-grab active:cursor-grabbing ${isDragging ? "opacity-50" : ""}`}
+    >
+      {children}
+    </div>
+  )
+}
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { RightPanel } from "@/components/ui/right-panel"
 import { TaskCard } from "@/components/cards/task-card"
 import { TaskForm } from "@/components/forms/task-form"
+import { TaskDetailModal } from "@/components/ui/task-detail-modal"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "react-hot-toast"
 import type { TaskInput } from "@/lib/validations/project"
@@ -15,9 +66,18 @@ import type { TaskInput } from "@/lib/validations/project"
 export default function TasksPage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [selectedTask, setSelectedTask] = useState<any>(null)
+  const [detailTask, setDetailTask] = useState<any>(null)
+  const [isDetailOpen, setIsDetailOpen] = useState(false)
+  const [activeTask, setActiveTask] = useState<any>(null)
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("")
   const [projectFilter, setProjectFilter] = useState("")
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    })
+  )
 
   const queryClient = useQueryClient()
 
@@ -125,6 +185,37 @@ export default function TasksPage() {
     }
   }
 
+  const handleTaskClick = (task: any) => {
+    setDetailTask(task)
+    setIsDetailOpen(true)
+  }
+
+  const handleCloseDetail = () => {
+    setDetailTask(null)
+    setIsDetailOpen(false)
+  }
+
+  // Drag handlers
+  const handleDragStart = (event: DragStartEvent) => {
+    const task = tasks.find((t: any) => t.id === event.active.id)
+    setActiveTask(task)
+  }
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    setActiveTask(null)
+
+    if (!over) return
+
+    const taskId = active.id as string
+    const newStatus = over.id as string
+    const task = tasks.find((t: any) => t.id === taskId)
+
+    if (task && task.status !== newStatus) {
+      handleStatusChange(task, newStatus)
+    }
+  }
+
   const tasks = data?.data || []
   const filteredTasks = search
     ? tasks.filter((t: any) => t.title.toLowerCase().includes(search.toLowerCase()))
@@ -218,37 +309,43 @@ export default function TasksPage() {
           )}
         </div>
       ) : (
-        // Kanban view
-        <div className="grid gap-4 lg:grid-cols-4">
-          {(["TODO", "IN_PROGRESS", "REVIEW", "COMPLETED"] as const).map((status) => (
-            <div key={status} className="space-y-3">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium text-gray-400">
-                  {status.replace("_", " ")}
-                </h3>
-                <span className="rounded-full bg-gray-800 px-2 py-0.5 text-xs text-gray-400">
-                  {tasksByStatus[status].length}
-                </span>
-              </div>
-              <div className="space-y-2">
+        // Kanban view with drag and drop
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="grid gap-4 lg:grid-cols-4">
+            {(["TODO", "IN_PROGRESS", "REVIEW", "COMPLETED"] as const).map((status) => (
+              <DroppableColumn key={status} id={status} count={tasksByStatus[status].length}>
                 {tasksByStatus[status].map((task: any) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onEdit={() => handleOpenForm(task)}
-                    onDelete={() => handleDelete(task)}
-                    onStatusChange={(s) => handleStatusChange(task, s)}
-                  />
+                  <DraggableTask key={task.id} task={task}>
+                    <TaskCard
+                      task={task}
+                      onClick={() => handleTaskClick(task)}
+                      onEdit={() => handleOpenForm(task)}
+                      onDelete={() => handleDelete(task)}
+                      onStatusChange={(s) => handleStatusChange(task, s)}
+                    />
+                  </DraggableTask>
                 ))}
                 {tasksByStatus[status].length === 0 && (
                   <div className="rounded-lg border border-dashed border-gray-800 py-8 text-center">
-                    <p className="text-xs text-gray-500">No tasks</p>
+                    <p className="text-xs text-gray-500">Drop here</p>
                   </div>
                 )}
+              </DroppableColumn>
+            ))}
+          </div>
+          <DragOverlay>
+            {activeTask && (
+              <div className="opacity-80">
+                <TaskCard task={activeTask} />
               </div>
-            </div>
-          ))}
-        </div>
+            )}
+          </DragOverlay>
+        </DndContext>
       )}
 
       {/* Form Panel */}
@@ -265,6 +362,25 @@ export default function TasksPage() {
           isLoading={createMutation.isPending || updateMutation.isPending}
         />
       </RightPanel>
+
+      {/* Task Detail Modal */}
+      <TaskDetailModal
+        task={detailTask}
+        isOpen={isDetailOpen}
+        onClose={handleCloseDetail}
+        onEdit={() => {
+          handleCloseDetail()
+          handleOpenForm(detailTask)
+        }}
+        onDelete={() => {
+          handleCloseDetail()
+          handleDelete(detailTask)
+        }}
+        onStatusChange={(status) => {
+          handleStatusChange(detailTask, status)
+          setDetailTask({ ...detailTask, status })
+        }}
+      />
     </div>
   )
 }
