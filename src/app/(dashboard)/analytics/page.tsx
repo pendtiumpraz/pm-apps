@@ -38,15 +38,8 @@ export default function AnalyticsPage() {
         .map(([name, value]) => ({ name: name.replace("_", " "), value }))
     : []
 
-  // Mock monthly data (since we simplified the query)
-  const monthlyData = [
-    { month: "Jul", income: 15000000 },
-    { month: "Aug", income: 22000000 },
-    { month: "Sep", income: 18000000 },
-    { month: "Oct", income: 25000000 },
-    { month: "Nov", income: 30000000 },
-    { month: "Dec", income: stats?.finance?.monthlyIncome || 0 },
-  ]
+  // Monthly income data from API
+  const monthlyData = stats?.incomeChart || []
 
   return (
     <div className="space-y-8">
@@ -109,7 +102,7 @@ export default function AnalyticsPage() {
           <div className="mt-6 h-72">
             {isLoading ? (
               <Skeleton className="h-full w-full" />
-            ) : (
+            ) : monthlyData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={monthlyData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -130,6 +123,10 @@ export default function AnalyticsPage() {
                   />
                 </LineChart>
               </ResponsiveContainer>
+            ) : (
+              <div className="flex h-full items-center justify-center text-gray-500">
+                No income data yet
+              </div>
             )}
           </div>
         </div>

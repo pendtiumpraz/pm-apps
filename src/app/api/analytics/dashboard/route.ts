@@ -145,14 +145,19 @@ export async function GET() {
         take: 10,
       }),
       
-      // Monthly income (last 6 months) - simplified query
-      prisma.income.groupBy({
-        by: ["createdAt"],
+      // Monthly payments (last 6 months) - get all paid payments
+      prisma.payment.findMany({
         where: {
-          project: { userId },
-          createdAt: { gte: new Date(now.getFullYear(), now.getMonth() - 5, 1) },
+          project: { userId, deletedAt: null },
+          deletedAt: null,
+          status: "PAID",
+          paymentDate: { gte: new Date(now.getFullYear(), now.getMonth() - 5, 1) },
         },
-        _sum: { amount: true },
+        select: {
+          amount: true,
+          paymentDate: true,
+        },
+        orderBy: { paymentDate: "asc" },
       }),
     ])
 
@@ -185,6 +190,38 @@ export async function GET() {
     const paidAmount = projectFinancials._sum.paidAmount || 0
     const pendingAmount = totalValue - paidAmount
 
+    // Aggregate monthly income by month
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    const monthlyIncomeMap: Record<string, number> = {}
+    
+    // Initialize last 6 months with 0
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+      const key = `${d.getFullYear()}-${d.getMonth()}`
+      monthlyIncomeMap[key] = 0
+    }
+    
+    // Aggregate payments by month
+    monthlyIncome.forEach((payment: any) => {
+      if (payment.paymentDate) {
+        const d = new Date(payment.paymentDate)
+        const key = `${d.getFullYear()}-${d.getMonth()}`
+        if (monthlyIncomeMap[key] !== undefined) {
+          monthlyIncomeMap[key] += payment.amount || 0
+        }
+      }
+    })
+    
+    // Convert to array for chart
+    const incomeChartData = Object.entries(monthlyIncomeMap).map(([key, amount]) => {
+      const [year, month] = key.split("-").map(Number)
+      return {
+        month: monthNames[month],
+        year,
+        income: amount,
+      }
+    })
+
     return NextResponse.json({
       data: {
         overview: {
@@ -212,7 +249,7 @@ export async function GET() {
           hostingsCount: expiringHostings.length,
         },
         recentActivities,
-        incomeChart: monthlyIncome,
+        incomeChart: incomeChartData,
       },
     })
   } catch (error) {
