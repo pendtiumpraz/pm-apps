@@ -1,0 +1,50 @@
+import type { Config } from "tailwindcss"
+
+const config: Config = {
+  darkMode: "class",
+  content: [
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          50: "#EEF2FF",
+          100: "#E0E7FF",
+          200: "#C7D2FE",
+          300: "#A5B4FC",
+          400: "#818CF8",
+          500: "#6366F1",
+          600: "#4F46E5",
+          700: "#4338CA",
+          800: "#3730A3",
+          900: "#312E81",
+        },
+        gray: {
+          50: "#FAFAFA",
+          100: "#F4F4F5",
+          200: "#E4E4E7",
+          300: "#D4D4D8",
+          400: "#A1A1AA",
+          500: "#71717A",
+          600: "#52525B",
+          700: "#3F3F46",
+          800: "#27272A",
+          900: "#18181B",
+          950: "#09090B",
+        },
+      },
+      backgroundImage: {
+        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
+        "gradient-card": "linear-gradient(145deg, #27272A 0%, #1F1F23 100%)",
+      },
+      animation: {
+        "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+      },
+    },
+  },
+  plugins: [],
+}
+export default config

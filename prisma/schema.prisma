@@ -1,0 +1,495 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================
+// USER - Pengguna aplikasi
+// ============================================
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String?
+  name          String?
+  avatar        String?
+  role          UserRole  @default(USER)
+
+  emailVerified DateTime?
+  accounts      Account[]
+  sessions      Session[]
+
+  projects   Project[]
+  activities Activity[]
+  reminders  Reminder[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+// ============================================
+// PROJECT - Data project/client
+// ============================================
+model Project {
+  id            String        @id @default(cuid())
+  userId        String
+  name          String
+  description   String?
+  client        String?
+  clientContact String?
+  projectType   ProjectType   @default(FULLSTACK)
+  stack         String?
+  hosting       String?
+  repositoryUrl String?
+  liveUrl       String?
+  status        ProjectStatus @default(PLANNING)
+  priority      Int           @default(5)
+  deadline      DateTime?
+  progress      Int           @default(0)
+  totalValue    Float         @default(0)
+  paidAmount    Float         @default(0)
+  currency      String        @default("IDR")
+  notes         String?
+  color         String?
+  order         Int           @default(0)
+
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks         Task[]
+  payments      Payment[]
+  invoices      Invoice[]
+  incomes       Income[]
+  activities    Activity[]
+  domains       Domain[]
+  hostings      Hosting[]
+  subscriptions Subscription[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([deadline])
+}
+
+enum ProjectType {
+  FRONTEND
+  BACKEND
+  FULLSTACK
+  MOBILE
+  AI
+  OTHER
+}
+
+enum ProjectStatus {
+  PLANNING
+  ACTIVE
+  ON_HOLD
+  REVIEW
+  COMPLETED
+  CANCELLED
+}
+
+// ============================================
+// TASK - Task per project
+// ============================================
+model Task {
+  id          String       @id @default(cuid())
+  projectId   String
+  title       String
+  description String?
+  status      TaskStatus   @default(TODO)
+  priority    TaskPriority @default(MEDIUM)
+  dueDate     DateTime?
+  order       Int          @default(0)
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([projectId])
+  @@index([status])
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  COMPLETED
+  BLOCKED
+}
+
+enum TaskPriority {
+  URGENT
+  HIGH
+  MEDIUM
+  LOW
+}
+
+// ============================================
+// INVOICE - Tagihan ke client
+// ============================================
+model Invoice {
+  id               String        @id @default(cuid())
+  projectId        String
+  invoiceNumber    String        @unique
+  title            String
+  description      String?
+  totalAmount      Float
+  paidAmount       Float         @default(0)
+  dueDate          DateTime
+  type             InvoiceType   @default(ONE_TIME)
+  status           InvoiceStatus @default(DRAFT)
+  installmentCount Int?
+  pdfUrl           String?
+  sentAt           DateTime?
+
+  project  Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  payments Payment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([dueDate])
+  @@index([status])
+}
+
+enum InvoiceType {
+  ONE_TIME
+  DP
+  TERMIN
+  INSTALLMENT
+  RECURRING
+  RENEWAL
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  VIEWED
+  PARTIAL
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+// ============================================
+// PAYMENT - Pembayaran dari client
+// ============================================
+model Payment {
+  id            String        @id @default(cuid())
+  projectId     String
+  invoiceId     String?
+  amount        Float
+  description   String?
+  paymentType   PaymentType   @default(FULL)
+  paymentMethod PaymentMethod @default(TRANSFER)
+  paymentDate   DateTime      @default(now())
+  status        PaymentStatus @default(PENDING)
+  installmentNo Int?
+  proofUrl      String?
+  notes         String?
+
+  project Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  invoice Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  incomes Income[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([invoiceId])
+  @@index([paymentDate])
+}
+
+enum PaymentType {
+  FULL
+  DP
+  TERMIN
+  INSTALLMENT
+  RECURRING
+  MAINTENANCE
+  RENEWAL
+}
+
+enum PaymentMethod {
+  CASH
+  TRANSFER
+  EWALLET
+  QRIS
+  CREDIT_CARD
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+// ============================================
+// INCOME - Record pendapatan bulanan
+// ============================================
+model Income {
+  id          String     @id @default(cuid())
+  projectId   String
+  paymentId   String?
+  amount      Float
+  type        IncomeType @default(PROJECT)
+  description String?
+  month       Int
+  year        Int
+
+  project Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  payment Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
+  @@index([projectId])
+  @@index([month, year])
+}
+
+enum IncomeType {
+  PROJECT
+  AI_PRODUCT
+  MAINTENANCE
+  CONSULTATION
+  OTHER
+}
+
+// ============================================
+// ACTIVITY - Activity log
+// ============================================
+model Activity {
+  id          String   @id @default(cuid())
+  projectId   String?
+  userId      String
+  action      String
+  entityType  String
+  entityId    String?
+  description String
+  metadata    String?
+
+  project Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([projectId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// ============================================
+// DOMAIN - Tracking domain client
+// ============================================
+model Domain {
+  id                String      @id @default(cuid())
+  projectId         String
+  domainName        String
+  registrar         String?
+  purchaseDate      DateTime?
+  expiryDate        DateTime
+  autoRenew         Boolean     @default(false)
+  cost              Float?
+  status            AssetStatus @default(ACTIVE)
+  notes             String?
+  registrarUsername String?
+  registrarPassword String?
+  reminderDays      Int         @default(30)
+  lastReminder      DateTime?
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([expiryDate])
+}
+
+// ============================================
+// HOSTING - Tracking hosting client
+// ============================================
+model Hosting {
+  id           String       @id @default(cuid())
+  projectId    String
+  provider     String
+  planName     String?
+  serverType   HostingType  @default(SHARED)
+  purchaseDate DateTime?
+  expiryDate   DateTime?
+  autoRenew    Boolean      @default(false)
+  cost         Float?
+  billingCycle BillingCycle @default(YEARLY)
+  status       AssetStatus  @default(ACTIVE)
+  serverIp     String?
+  cpanelUrl    String?
+  sshHost      String?
+  sshPort      Int?
+  username     String?
+  password     String?
+  notes        String?
+  reminderDays Int          @default(30)
+  lastReminder DateTime?
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([expiryDate])
+}
+
+enum HostingType {
+  SHARED
+  VPS
+  DEDICATED
+  CLOUD
+  SERVERLESS
+  MANAGED
+}
+
+enum BillingCycle {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+  BIYEARLY
+  TRIYEARLY
+  LIFETIME
+  FREE
+}
+
+enum AssetStatus {
+  ACTIVE
+  EXPIRING_SOON
+  EXPIRED
+  SUSPENDED
+  CANCELLED
+}
+
+// ============================================
+// SUBSCRIPTION - SaaS/Recurring revenue
+// ============================================
+model Subscription {
+  id              String             @id @default(cuid())
+  projectId       String
+  planName        String
+  description     String?
+  amount          Float
+  billingCycle    BillingCycle       @default(MONTHLY)
+  startDate       DateTime           @default(now())
+  nextBillingDate DateTime
+  endDate         DateTime?
+  status          SubscriptionStatus @default(ACTIVE)
+  customerName    String?
+  customerEmail   String?
+  customerPhone   String?
+  autoCharge      Boolean            @default(false)
+  notes           String?
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([nextBillingDate])
+  @@index([status])
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PAST_DUE
+  PAUSED
+  CANCELLED
+  EXPIRED
+}
+
+// ============================================
+// REMINDER - Scheduled reminders
+// ============================================
+model Reminder {
+  id            String       @id @default(cuid())
+  userId        String
+  title         String
+  description   String?
+  type          ReminderType
+  entityType    String?
+  entityId      String?
+  reminderDate  DateTime
+  isRead        Boolean      @default(false)
+  isDismissed   Boolean      @default(false)
+  isRecurring   Boolean      @default(false)
+  recurringDays Int?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([reminderDate])
+  @@index([isRead])
+}
+
+enum ReminderType {
+  DOMAIN_EXPIRY
+  HOSTING_EXPIRY
+  INVOICE_DUE
+  PAYMENT_REMINDER
+  SUBSCRIPTION_RENEW
+  PROJECT_DEADLINE
+  TASK_DUE
+  CUSTOM
+}
