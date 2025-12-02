@@ -95,9 +95,9 @@ export async function POST(req: NextRequest) {
       notes,
     } = body
 
-    if (!platformId || !email || !apiKey) {
+    if (!platformId || !email) {
       return NextResponse.json(
-        { error: "Platform, email and API key are required" },
+        { error: "Platform and email are required" },
         { status: 400 }
       )
     }
@@ -118,7 +118,7 @@ export async function POST(req: NextRequest) {
         email,
         password,
         loginMethod,
-        apiKey,
+        apiKey: apiKey || null,
         creditTotal: creditTotal || 0,
         creditUsed: creditUsed || 0,
         tokenTotal: tokenTotal || 0,

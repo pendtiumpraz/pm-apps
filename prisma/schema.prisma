@@ -541,7 +541,7 @@ model ApiKey {
   email        String
   password     String?
   loginMethod  String?
-  apiKey       String
+  apiKey       String?
   creditTotal  Float   @default(0)
   creditUsed   Float   @default(0)
   tokenTotal   Float   @default(0)

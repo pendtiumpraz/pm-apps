@@ -70,12 +70,6 @@ export async function POST(req: NextRequest) {
           continue
         }
 
-        if (!row.apiKey) {
-          results.failed++
-          results.errors.push(`Row ${rowNum}: API Key is required`)
-          continue
-        }
-
         await prisma.apiKey.create({
           data: {
             userId,
@@ -83,7 +77,7 @@ export async function POST(req: NextRequest) {
             email: row.email,
             password: row.password || null,
             loginMethod: row.loginMethod || null,
-            apiKey: row.apiKey,
+            apiKey: row.apiKey || null,
             creditTotal: parseFloat(row.creditTotal) || 0,
             creditUsed: parseFloat(row.creditUsed) || 0,
             tokenTotal: parseFloat(row.tokenTotal) || 0,

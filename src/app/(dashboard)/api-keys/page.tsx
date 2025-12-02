@@ -555,23 +555,27 @@ export default function ApiKeysPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <code className="rounded bg-gray-800 px-2 py-1 text-xs text-gray-300">
-                        {visibleKeys.has(key.id) ? key.apiKey : maskApiKey(key.apiKey)}
-                      </code>
-                      <button
-                        onClick={() => toggleKeyVisibility(key.id)}
-                        className="rounded p-1 text-gray-500 hover:bg-gray-800 hover:text-gray-300"
-                      >
-                        {visibleKeys.has(key.id) ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                      <button
-                        onClick={() => copyToClipboard(key.apiKey, key.id)}
-                        className="rounded p-1 text-gray-500 hover:bg-gray-800 hover:text-gray-300"
-                      >
-                        {copiedId === key.id ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
-                      </button>
-                    </div>
+                    {key.apiKey ? (
+                      <div className="flex items-center gap-2">
+                        <code className="rounded bg-gray-800 px-2 py-1 text-xs text-gray-300">
+                          {visibleKeys.has(key.id) ? key.apiKey : maskApiKey(key.apiKey)}
+                        </code>
+                        <button
+                          onClick={() => toggleKeyVisibility(key.id)}
+                          className="rounded p-1 text-gray-500 hover:bg-gray-800 hover:text-gray-300"
+                        >
+                          {visibleKeys.has(key.id) ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                        <button
+                          onClick={() => copyToClipboard(key.apiKey, key.id)}
+                          className="rounded p-1 text-gray-500 hover:bg-gray-800 hover:text-gray-300"
+                        >
+                          {copiedId === key.id ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-gray-500 italic">CLI login only</span>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <div className="text-xs">
@@ -722,8 +726,8 @@ export default function ApiKeysPage() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-300">API Key *</label>
-            <Input name="apiKey" defaultValue={selectedKey?.apiKey || ""} required />
+            <label className="mb-1.5 block text-sm font-medium text-gray-300">API Key</label>
+            <Input name="apiKey" defaultValue={selectedKey?.apiKey || ""} placeholder="Optional (e.g., for CLI-based platforms)" />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
