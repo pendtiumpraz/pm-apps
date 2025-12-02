@@ -37,12 +37,23 @@ Hyperbolic,user2@example.com,,google,hyp_xxxxxxxxxxxx,5,2.5,,,Second account`
 
 export default function ApiKeysPage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [isPlatformFormOpen, setIsPlatformFormOpen] = useState(false)
   const [selectedKey, setSelectedKey] = useState<any>(null)
+  const [selectedPlatform, setSelectedPlatform] = useState<any>(null)
   const [search, setSearch] = useState("")
+  const [debouncedSearch, setDebouncedSearch] = useState("")
   const [platformFilter, setPlatformFilter] = useState("")
+  const [page, setPage] = useState(1)
   const [visibleKeys, setVisibleKeys] = useState<Set<string>>(new Set())
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const limit = 20
+
+  // Debounce search
+  useState(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search), 300)
+    return () => clearTimeout(timer)
+  })
 
   const queryClient = useQueryClient()
 
@@ -58,15 +69,30 @@ export default function ApiKeysPage() {
 
   // Fetch API keys
   const { data, isLoading } = useQuery({
-    queryKey: ["api-keys", platformFilter],
+    queryKey: ["api-keys", platformFilter, debouncedSearch, page],
     queryFn: async () => {
       const params = new URLSearchParams()
       if (platformFilter) params.set("platformId", platformFilter)
+      if (debouncedSearch) params.set("search", debouncedSearch)
+      params.set("page", page.toString())
+      params.set("limit", limit.toString())
       const res = await fetch(`/api/api-keys?${params}`)
       if (!res.ok) throw new Error("Failed to fetch")
       return res.json()
     },
   })
+
+  // Reset page when filters change
+  const handleSearch = (value: string) => {
+    setSearch(value)
+    setDebouncedSearch(value)
+    setPage(1)
+  }
+
+  const handlePlatformFilter = (value: string) => {
+    setPlatformFilter(value)
+    setPage(1)
+  }
 
   // Create mutation
   const createMutation = useMutation({
@@ -141,6 +167,60 @@ export default function ApiKeysPage() {
     onError: (error: Error) => toast.error(error.message),
   })
 
+  // Platform mutations
+  const createPlatformMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const res = await fetch("/api/platforms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+      if (!res.ok) throw new Error((await res.json()).error || "Failed to create")
+      return res.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["platforms"] })
+      toast.success("Platform added!")
+      setIsPlatformFormOpen(false)
+      setSelectedPlatform(null)
+    },
+    onError: (error: Error) => toast.error(error.message),
+  })
+
+  const updatePlatformMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: any }) => {
+      const res = await fetch(`/api/platforms/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+      if (!res.ok) throw new Error((await res.json()).error || "Failed to update")
+      return res.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["platforms"] })
+      queryClient.invalidateQueries({ queryKey: ["api-keys"] })
+      toast.success("Platform updated!")
+      setIsPlatformFormOpen(false)
+      setSelectedPlatform(null)
+    },
+    onError: (error: Error) => toast.error(error.message),
+  })
+
+  const deletePlatformMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await fetch(`/api/platforms/${id}`, { method: "DELETE" })
+      if (!res.ok) throw new Error((await res.json()).error || "Failed to delete")
+      return res.json()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["platforms"] })
+      queryClient.invalidateQueries({ queryKey: ["api-keys"] })
+      toast.success("Platform deleted!")
+    },
+    onError: (error: Error) => toast.error(error.message),
+  })
+
   const handleOpenForm = (key?: any) => {
     setSelectedKey(key || null)
     setIsFormOpen(true)
@@ -149,6 +229,40 @@ export default function ApiKeysPage() {
   const handleCloseForm = () => {
     setSelectedKey(null)
     setIsFormOpen(false)
+  }
+
+  const handleOpenPlatformForm = (platform?: any) => {
+    setSelectedPlatform(platform || null)
+    setIsPlatformFormOpen(true)
+  }
+
+  const handleClosePlatformForm = () => {
+    setSelectedPlatform(null)
+    setIsPlatformFormOpen(false)
+  }
+
+  const handlePlatformSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const form = e.currentTarget
+    const formData = new FormData(form)
+    const data = {
+      name: formData.get("name"),
+      website: formData.get("website") || null,
+      color: formData.get("color") || "#6366F1",
+      description: formData.get("description") || null,
+    }
+
+    if (selectedPlatform) {
+      await updatePlatformMutation.mutateAsync({ id: selectedPlatform.id, data })
+    } else {
+      await createPlatformMutation.mutateAsync(data)
+    }
+  }
+
+  const handleDeletePlatform = (platform: any) => {
+    if (confirm(`Delete "${platform.name}" and all its API keys?`)) {
+      deletePlatformMutation.mutate(platform.id)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -235,15 +349,8 @@ export default function ApiKeysPage() {
 
   const platforms = platformsData?.data || []
   const apiKeys = data?.data || []
+  const pagination = data?.pagination || { page: 1, limit: 20, totalCount: 0, totalPages: 0 }
   const totals = data?.totals || { count: 0, creditTotal: 0, creditUsed: 0, creditRemaining: 0 }
-
-  const filteredKeys = search
-    ? apiKeys.filter(
-        (k: any) =>
-          k.email.toLowerCase().includes(search.toLowerCase()) ||
-          k.platform.name.toLowerCase().includes(search.toLowerCase())
-      )
-    : apiKeys
 
   return (
     <div className="space-y-6">
@@ -328,13 +435,13 @@ export default function ApiKeysPage() {
           <Input
             placeholder="Search by email or platform..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearch(e.target.value)}
             className="pl-10"
           />
         </div>
         <select
           value={platformFilter}
-          onChange={(e) => setPlatformFilter(e.target.value)}
+          onChange={(e) => handlePlatformFilter(e.target.value)}
           className="h-10 rounded-lg border border-gray-700 bg-gray-800 px-3 text-sm text-gray-100"
         >
           <option value="">All Platforms</option>
@@ -344,6 +451,9 @@ export default function ApiKeysPage() {
             </option>
           ))}
         </select>
+        <Button variant="outline" onClick={() => handleOpenPlatformForm()}>
+          <Plus className="h-4 w-4" /> Platform
+        </Button>
       </div>
 
       {/* Table */}
@@ -373,8 +483,8 @@ export default function ApiKeysPage() {
                   <td className="px-4 py-3"><Skeleton className="h-6 w-8" /></td>
                 </tr>
               ))
-            ) : filteredKeys.length > 0 ? (
-              filteredKeys.map((key: any) => (
+            ) : apiKeys.length > 0 ? (
+              apiKeys.map((key: any) => (
                 <tr key={key.id} className="hover:bg-gray-900/50">
                   <td className="px-4 py-3">
                     <span
@@ -457,6 +567,60 @@ export default function ApiKeysPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
+      {pagination.totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-400">
+            Showing {(page - 1) * limit + 1} - {Math.min(page * limit, pagination.totalCount)} of {pagination.totalCount}
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(page - 1)}
+              disabled={page === 1}
+            >
+              Previous
+            </Button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                let pageNum
+                if (pagination.totalPages <= 5) {
+                  pageNum = i + 1
+                } else if (page <= 3) {
+                  pageNum = i + 1
+                } else if (page >= pagination.totalPages - 2) {
+                  pageNum = pagination.totalPages - 4 + i
+                } else {
+                  pageNum = page - 2 + i
+                }
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setPage(pageNum)}
+                    className={`h-8 w-8 rounded text-sm ${
+                      page === pageNum
+                        ? "bg-primary-500 text-white"
+                        : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                )
+              })}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(page + 1)}
+              disabled={page === pagination.totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Form Panel */}
       <RightPanel
@@ -544,6 +708,100 @@ export default function ApiKeysPage() {
             </Button>
           </div>
         </form>
+      </RightPanel>
+
+      {/* Platform Form Panel */}
+      <RightPanel
+        isOpen={isPlatformFormOpen}
+        onClose={handleClosePlatformForm}
+        title={selectedPlatform ? "Edit Platform" : "Add Platform"}
+        width="sm"
+      >
+        <form onSubmit={handlePlatformSubmit} className="space-y-4">
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-300">Name *</label>
+            <Input name="name" defaultValue={selectedPlatform?.name || ""} required placeholder="e.g., OpenAI" />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-300">Website</label>
+            <Input name="website" defaultValue={selectedPlatform?.website || ""} placeholder="https://..." />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-300">Color</label>
+            <div className="flex gap-2">
+              <input
+                type="color"
+                name="color"
+                defaultValue={selectedPlatform?.color || "#6366F1"}
+                className="h-10 w-14 cursor-pointer rounded border border-gray-700 bg-gray-800"
+              />
+              <Input
+                name="colorHex"
+                defaultValue={selectedPlatform?.color || "#6366F1"}
+                className="flex-1"
+                placeholder="#6366F1"
+                onChange={(e) => {
+                  const colorInput = e.target.previousElementSibling as HTMLInputElement
+                  if (colorInput) colorInput.value = e.target.value
+                }}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-gray-300">Description</label>
+            <textarea
+              name="description"
+              rows={2}
+              defaultValue={selectedPlatform?.description || ""}
+              className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-gray-100 placeholder-gray-500"
+              placeholder="Optional description..."
+            />
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <Button type="button" variant="outline" className="flex-1" onClick={handleClosePlatformForm}>
+              Cancel
+            </Button>
+            <Button type="submit" className="flex-1" disabled={createPlatformMutation.isPending || updatePlatformMutation.isPending}>
+              {createPlatformMutation.isPending || updatePlatformMutation.isPending ? "Saving..." : selectedPlatform ? "Update" : "Create"}
+            </Button>
+          </div>
+        </form>
+
+        {/* Platform List */}
+        <div className="mt-8 border-t border-gray-800 pt-6">
+          <h4 className="mb-4 text-sm font-medium text-gray-300">Existing Platforms</h4>
+          <div className="space-y-2 max-h-64 overflow-y-auto">
+            {platforms.map((p: any) => (
+              <div key={p.id} className="flex items-center justify-between rounded-lg bg-gray-800/50 px-3 py-2">
+                <div className="flex items-center gap-2">
+                  <span className="h-3 w-3 rounded-full" style={{ backgroundColor: p.color }} />
+                  <span className="text-sm text-gray-200">{p.name}</span>
+                  <span className="text-xs text-gray-500">({p._count?.apiKeys || 0})</span>
+                </div>
+                <div className="flex gap-1">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenPlatformForm(p)}
+                    className="rounded p-1 text-gray-500 hover:bg-gray-700 hover:text-gray-300"
+                  >
+                    <Edit className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDeletePlatform(p)}
+                    className="rounded p-1 text-gray-500 hover:bg-gray-700 hover:text-red-400"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </RightPanel>
     </div>
   )

@@ -13,28 +13,49 @@ export async function GET(req: NextRequest) {
 
     const { searchParams } = new URL(req.url)
     const platformId = searchParams.get("platformId")
+    const search = searchParams.get("search")
+    const page = parseInt(searchParams.get("page") || "1")
+    const limit = parseInt(searchParams.get("limit") || "20")
+    const skip = (page - 1) * limit
 
-    const apiKeys = await prisma.apiKey.findMany({
-      where: {
-        userId: session.user.id,
-        deletedAt: null,
-        ...(platformId && { platformId }),
-      },
-      include: {
-        platform: { select: { id: true, name: true, slug: true, color: true } },
-      },
-      orderBy: { createdAt: "desc" },
-    })
+    const where = {
+      userId: session.user.id,
+      deletedAt: null,
+      ...(platformId && { platformId }),
+      ...(search && {
+        OR: [
+          { email: { contains: search, mode: "insensitive" as const } },
+          { platform: { name: { contains: search, mode: "insensitive" as const } } },
+        ],
+      }),
+    }
 
-    // Calculate totals
-    const totals = await prisma.apiKey.aggregate({
-      where: { userId: session.user.id, deletedAt: null },
-      _sum: { creditTotal: true, creditUsed: true },
-      _count: true,
-    })
+    const [apiKeys, totalCount, totals] = await Promise.all([
+      prisma.apiKey.findMany({
+        where,
+        include: {
+          platform: { select: { id: true, name: true, slug: true, color: true } },
+        },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      prisma.apiKey.count({ where }),
+      prisma.apiKey.aggregate({
+        where: { userId: session.user.id, deletedAt: null },
+        _sum: { creditTotal: true, creditUsed: true },
+        _count: true,
+      }),
+    ])
 
     return NextResponse.json({
       data: apiKeys,
+      pagination: {
+        page,
+        limit,
+        totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+      },
       totals: {
         count: totals._count,
         creditTotal: totals._sum.creditTotal || 0,
