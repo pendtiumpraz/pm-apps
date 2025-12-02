@@ -507,3 +507,54 @@ enum ReminderType {
   TASK_DUE
   CUSTOM
 }
+
+// ============================================
+// API PLATFORM - Platform penyedia API
+// ============================================
+model ApiPlatform {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  slug        String
+  website     String?
+  description String?
+  color       String?
+
+  apiKeys ApiKey[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@unique([userId, slug])
+  @@index([userId])
+  @@index([deletedAt])
+}
+
+// ============================================
+// API KEY - Free API Key amunisi
+// ============================================
+model ApiKey {
+  id           String  @id @default(cuid())
+  userId       String
+  platformId   String
+  email        String
+  password     String?
+  loginMethod  String?
+  apiKey       String
+  creditTotal  Float   @default(0)
+  creditUsed   Float   @default(0)
+  referralCode String?
+  referralLink String?
+  notes        String?
+
+  platform ApiPlatform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([userId])
+  @@index([platformId])
+  @@index([deletedAt])
+}
