@@ -11,6 +11,7 @@ import {
   Activity,
   ArrowLeft,
   Shield,
+  Trophy,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -18,6 +19,7 @@ const adminMenuItems = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/admin" },
   { icon: Users, label: "Users", href: "/admin/users" },
   { icon: Layers, label: "Platforms", href: "/admin/platforms" },
+  { icon: Trophy, label: "Best Lists", href: "/admin/best-lists" },
   { icon: Activity, label: "Activity Logs", href: "/admin/logs" },
 ]
 
