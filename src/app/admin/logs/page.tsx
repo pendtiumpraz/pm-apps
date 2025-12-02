@@ -113,31 +113,57 @@ export default function AdminLogsPage() {
       </div>
 
       {/* Pagination */}
-      {pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-400">
-            Page {page} of {pagination.totalPages} ({pagination.totalCount} total)
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage(page - 1)}
-              disabled={page === 1}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage(page + 1)}
-              disabled={page === pagination.totalPages}
-            >
-              Next
-            </Button>
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-gray-400">
+          Showing {logs.length > 0 ? ((page - 1) * 50) + 1 : 0} - {Math.min(page * 50, pagination.totalCount)} of {pagination.totalCount} logs
+        </p>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage(page - 1)}
+            disabled={page === 1}
+          >
+            Previous
+          </Button>
+          <div className="flex items-center gap-1">
+            {Array.from({ length: Math.min(5, pagination.totalPages || 1) }, (_, i) => {
+              let pageNum
+              const totalPages = pagination.totalPages || 1
+              if (totalPages <= 5) {
+                pageNum = i + 1
+              } else if (page <= 3) {
+                pageNum = i + 1
+              } else if (page >= totalPages - 2) {
+                pageNum = totalPages - 4 + i
+              } else {
+                pageNum = page - 2 + i
+              }
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => setPage(pageNum)}
+                  className={`h-8 w-8 rounded text-sm ${
+                    page === pageNum
+                      ? "bg-red-500 text-white"
+                      : "bg-gray-800 text-gray-400 hover:bg-gray-700"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              )
+            })}
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPage(page + 1)}
+            disabled={page === pagination.totalPages || pagination.totalPages === 0}
+          >
+            Next
+          </Button>
         </div>
-      )}
+      </div>
     </div>
   )
 }
