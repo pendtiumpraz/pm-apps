@@ -23,9 +23,11 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
-  projects   Project[]
-  activities Activity[]
-  reminders  Reminder[]
+  projects       Project[]
+  activities     Activity[]
+  reminders      Reminder[]
+  tools          Tool[]
+  toolCategories ToolCategory[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -558,5 +560,147 @@ model ApiKey {
 
   @@index([userId])
   @@index([platformId])
+  @@index([deletedAt])
+}
+
+// ============================================
+// TOOL CATEGORY - Kategori AI Tools
+// ============================================
+model ToolCategory {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  icon        String?
+  color       String   @default("#6366F1")
+  createdBy   String?
+
+  user  User?  @relation(fields: [createdBy], references: [id], onDelete: SetNull)
+  tools Tool[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([createdBy])
+  @@index([deletedAt])
+}
+
+// ============================================
+// TOOL - AI Tools Directory
+// ============================================
+model Tool {
+  id          String      @id @default(cuid())
+  name        String
+  slug        String      @unique
+  url         String
+  downloadUrl String?
+  description String?
+  pricing     ToolPricing @default(FREEMIUM)
+  categoryId  String
+  notes       String?
+  userId      String
+
+  category ToolCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([categoryId])
+  @@index([userId])
+  @@index([pricing])
+  @@index([deletedAt])
+}
+
+enum ToolPricing {
+  FREE
+  FREEMIUM
+  FREE_TRIAL
+  PAY_PER_USE
+  SUBSCRIPTION
+  ENTERPRISE
+  OPEN_SOURCE
+}
+
+// ============================================
+// BEST AI MODEL - SWE-bench Leaderboard
+// ============================================
+model BestAiModel {
+  id           String  @id @default(cuid())
+  rank         Int
+  name         String
+  resolved     Float
+  costPerTask  Float?
+  organization String
+  link         String?
+  notes        String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([rank])
+  @@index([deletedAt])
+}
+
+// ============================================
+// BEST IDE - Top AI IDEs
+// ============================================
+model BestIde {
+  id          String  @id @default(cuid())
+  rank        Int
+  name        String
+  description String?
+  downloadUrl String
+  pricing     String?
+  notes       String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([rank])
+  @@index([deletedAt])
+}
+
+// ============================================
+// BEST CLI - Top AI CLI Tools
+// ============================================
+model BestCli {
+  id          String  @id @default(cuid())
+  rank        Int
+  name        String
+  description String?
+  githubUrl   String
+  stars       String?
+  notes       String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([rank])
+  @@index([deletedAt])
+}
+
+// ============================================
+// BEST ORCHESTRATOR - Top CLI Orchestrators
+// ============================================
+model BestOrchestrator {
+  id          String  @id @default(cuid())
+  rank        Int
+  name        String
+  description String?
+  githubUrl   String
+  stars       String?
+  notes       String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([rank])
   @@index([deletedAt])
 }

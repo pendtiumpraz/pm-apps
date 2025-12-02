@@ -15,6 +15,8 @@ import {
   ChevronLeft,
   Plus,
   Key,
+  Trophy,
+  Sparkles,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -25,6 +27,8 @@ const menuItems = [
   { icon: Wallet, label: "Finance", href: "/finance" },
   { icon: Globe, label: "Assets", href: "/assets" },
   { icon: Key, label: "API Keys", href: "/api-keys" },
+  { icon: Trophy, label: "Best AI", href: "/best-ai" },
+  { icon: Sparkles, label: "AI Tools", href: "/tools" },
   { icon: Calendar, label: "Calendar", href: "/calendar" },
   { icon: BarChart3, label: "Analytics", href: "/analytics" },
   { icon: Settings, label: "Settings", href: "/settings" },
