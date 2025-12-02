@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
       prisma.apiKey.count({ where }),
       prisma.apiKey.aggregate({
         where: { userId: session.user.id, deletedAt: null },
-        _sum: { creditTotal: true, creditUsed: true },
+        _sum: { creditTotal: true, creditUsed: true, tokenTotal: true, tokenUsed: true },
         _count: true,
       }),
     ])
@@ -61,6 +61,9 @@ export async function GET(req: NextRequest) {
         creditTotal: totals._sum.creditTotal || 0,
         creditUsed: totals._sum.creditUsed || 0,
         creditRemaining: (totals._sum.creditTotal || 0) - (totals._sum.creditUsed || 0),
+        tokenTotal: totals._sum.tokenTotal || 0,
+        tokenUsed: totals._sum.tokenUsed || 0,
+        tokenRemaining: (totals._sum.tokenTotal || 0) - (totals._sum.tokenUsed || 0),
       },
     })
   } catch (error) {
@@ -85,6 +88,8 @@ export async function POST(req: NextRequest) {
       apiKey,
       creditTotal,
       creditUsed,
+      tokenTotal,
+      tokenUsed,
       referralCode,
       referralLink,
       notes,
@@ -116,6 +121,8 @@ export async function POST(req: NextRequest) {
         apiKey,
         creditTotal: creditTotal || 0,
         creditUsed: creditUsed || 0,
+        tokenTotal: tokenTotal || 0,
+        tokenUsed: tokenUsed || 0,
         referralCode,
         referralLink,
         notes,

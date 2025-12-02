@@ -544,6 +544,8 @@ model ApiKey {
   apiKey       String
   creditTotal  Float   @default(0)
   creditUsed   Float   @default(0)
+  tokenTotal   Float   @default(0)
+  tokenUsed    Float   @default(0)
   referralCode String?
   referralLink String?
   notes        String?

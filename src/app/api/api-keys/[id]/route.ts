@@ -56,6 +56,8 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
         apiKey: body.apiKey,
         creditTotal: body.creditTotal,
         creditUsed: body.creditUsed,
+        tokenTotal: body.tokenTotal,
+        tokenUsed: body.tokenUsed,
         referralCode: body.referralCode,
         referralLink: body.referralLink,
         notes: body.notes,

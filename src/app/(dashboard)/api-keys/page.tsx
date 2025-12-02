@@ -16,6 +16,7 @@ import {
   Check,
   Key,
   DollarSign,
+  Zap,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -31,9 +32,9 @@ function maskApiKey(key: string) {
 }
 
 // CSV Template
-const CSV_TEMPLATE = `platform,email,password,loginMethod,apiKey,creditTotal,creditUsed,referralCode,referralLink,notes
-Groq,user@example.com,password123,email,gsk_xxxxxxxxxxxx,10,0,REF123,https://groq.com/ref/123,My first key
-Hyperbolic,user2@example.com,,google,hyp_xxxxxxxxxxxx,5,2.5,,,Second account`
+const CSV_TEMPLATE = `platform,email,password,loginMethod,apiKey,creditTotal,creditUsed,tokenTotal,tokenUsed,referralCode,referralLink,notes
+Groq,user@example.com,password123,email,gsk_xxxxxxxxxxxx,10,0,0,0,REF123,https://groq.com/ref/123,My first key
+Hyperbolic,user2@example.com,,google,hyp_xxxxxxxxxxxx,0,0,1000000,50000,,,Token based account`
 
 export default function ApiKeysPage() {
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -277,6 +278,8 @@ export default function ApiKeysPage() {
       apiKey: formData.get("apiKey"),
       creditTotal: parseFloat(formData.get("creditTotal") as string) || 0,
       creditUsed: parseFloat(formData.get("creditUsed") as string) || 0,
+      tokenTotal: parseFloat(formData.get("tokenTotal") as string) || 0,
+      tokenUsed: parseFloat(formData.get("tokenUsed") as string) || 0,
       referralCode: formData.get("referralCode") || null,
       referralLink: formData.get("referralLink") || null,
       notes: formData.get("notes") || null,
@@ -350,7 +353,23 @@ export default function ApiKeysPage() {
   const platforms = platformsData?.data || []
   const apiKeys = data?.data || []
   const pagination = data?.pagination || { page: 1, limit: 20, totalCount: 0, totalPages: 0 }
-  const totals = data?.totals || { count: 0, creditTotal: 0, creditUsed: 0, creditRemaining: 0 }
+  const totals = data?.totals || { 
+    count: 0, 
+    creditTotal: 0, 
+    creditUsed: 0, 
+    creditRemaining: 0,
+    tokenTotal: 0,
+    tokenUsed: 0,
+    tokenRemaining: 0,
+  }
+
+  // Format large numbers
+  const formatTokens = (num: number) => {
+    if (num >= 1000000000) return (num / 1000000000).toFixed(1) + 'B'
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M'
+    if (num >= 1000) return (num / 1000).toFixed(1) + 'K'
+    return num.toString()
+  }
 
   return (
     <div className="space-y-6">
@@ -381,7 +400,7 @@ export default function ApiKeysPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-4 lg:grid-cols-7">
         <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
           <div className="flex items-center gap-3">
             <div className="rounded-lg bg-primary-500/10 p-2">
@@ -400,7 +419,7 @@ export default function ApiKeysPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-100">${totals.creditTotal.toFixed(2)}</p>
-              <p className="text-sm text-gray-400">Total Credit</p>
+              <p className="text-sm text-gray-400">Credit Total</p>
             </div>
           </div>
         </div>
@@ -411,7 +430,7 @@ export default function ApiKeysPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-100">${totals.creditUsed.toFixed(2)}</p>
-              <p className="text-sm text-gray-400">Used</p>
+              <p className="text-sm text-gray-400">Credit Used</p>
             </div>
           </div>
         </div>
@@ -422,7 +441,40 @@ export default function ApiKeysPage() {
             </div>
             <div>
               <p className="text-2xl font-bold text-gray-100">${totals.creditRemaining.toFixed(2)}</p>
-              <p className="text-sm text-gray-400">Remaining</p>
+              <p className="text-sm text-gray-400">Credit Left</p>
+            </div>
+          </div>
+        </div>
+        <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
+          <div className="flex items-center gap-3">
+            <div className="rounded-lg bg-purple-500/10 p-2">
+              <Zap className="h-5 w-5 text-purple-400" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-100">{formatTokens(totals.tokenTotal)}</p>
+              <p className="text-sm text-gray-400">Token Total</p>
+            </div>
+          </div>
+        </div>
+        <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
+          <div className="flex items-center gap-3">
+            <div className="rounded-lg bg-orange-500/10 p-2">
+              <Zap className="h-5 w-5 text-orange-400" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-100">{formatTokens(totals.tokenUsed)}</p>
+              <p className="text-sm text-gray-400">Token Used</p>
+            </div>
+          </div>
+        </div>
+        <div className="rounded-xl border border-gray-800 bg-gray-900 p-4">
+          <div className="flex items-center gap-3">
+            <div className="rounded-lg bg-cyan-500/10 p-2">
+              <Zap className="h-5 w-5 text-cyan-400" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-100">{formatTokens(totals.tokenRemaining)}</p>
+              <p className="text-sm text-gray-400">Token Left</p>
             </div>
           </div>
         </div>
@@ -464,8 +516,8 @@ export default function ApiKeysPage() {
               <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-400">Platform</th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-400">Email</th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-400">API Key</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-400">Credit</th>
-              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-400">Used</th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-400">Credit ($)</th>
+              <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-400">Tokens</th>
               <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-400">Referral</th>
               <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-400">Actions</th>
             </tr>
@@ -522,10 +574,18 @@ export default function ApiKeysPage() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-sm text-green-400">${key.creditTotal.toFixed(2)}</span>
+                    <div className="text-xs">
+                      <span className="text-green-400">${key.creditTotal.toFixed(2)}</span>
+                      <span className="text-gray-600 mx-1">/</span>
+                      <span className="text-yellow-400">${key.creditUsed.toFixed(2)}</span>
+                    </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-sm text-yellow-400">${key.creditUsed.toFixed(2)}</span>
+                    <div className="text-xs">
+                      <span className="text-purple-400">{formatTokens(key.tokenTotal)}</span>
+                      <span className="text-gray-600 mx-1">/</span>
+                      <span className="text-orange-400">{formatTokens(key.tokenUsed)}</span>
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     {key.referralCode ? (
@@ -674,6 +734,17 @@ export default function ApiKeysPage() {
             <div>
               <label className="mb-1.5 block text-sm font-medium text-gray-300">Credit Used ($)</label>
               <Input name="creditUsed" type="number" step="0.01" defaultValue={selectedKey?.creditUsed || 0} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-gray-300">Token Total</label>
+              <Input name="tokenTotal" type="number" step="1" defaultValue={selectedKey?.tokenTotal || 0} placeholder="e.g., 1000000" />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-gray-300">Token Used</label>
+              <Input name="tokenUsed" type="number" step="1" defaultValue={selectedKey?.tokenUsed || 0} />
             </div>
           </div>
 

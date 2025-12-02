@@ -86,6 +86,8 @@ export async function POST(req: NextRequest) {
             apiKey: row.apiKey,
             creditTotal: parseFloat(row.creditTotal) || 0,
             creditUsed: parseFloat(row.creditUsed) || 0,
+            tokenTotal: parseFloat(row.tokenTotal) || 0,
+            tokenUsed: parseFloat(row.tokenUsed) || 0,
             referralCode: row.referralCode || null,
             referralLink: row.referralLink || null,
             notes: row.notes || null,
