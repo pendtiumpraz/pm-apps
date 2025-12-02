@@ -5,21 +5,27 @@ async function main() {
   const users = await prisma.user.findMany({
     select: {
       id: true,
-      name: true,
       email: true,
+      name: true,
       createdAt: true,
-    }
+      _count: {
+        select: {
+          projects: true,
+        }
+      }
+    },
+    orderBy: { createdAt: 'desc' }
   })
+
+  console.log(`\n=== Total Users: ${users.length} ===\n`)
   
-  console.log('=== Registered Users ===')
-  if (users.length === 0) {
-    console.log('No users found. Please register first.')
-  } else {
-    users.forEach(user => {
-      console.log(`- ${user.email} (${user.name}) - Created: ${user.createdAt}`)
-    })
-  }
-  console.log(`Total: ${users.length} user(s)`)
+  users.forEach((user, i) => {
+    console.log(`${i + 1}. ${user.email}`)
+    console.log(`   Name: ${user.name || '-'}`)
+    console.log(`   Projects: ${user._count.projects}`)
+    console.log(`   Joined: ${user.createdAt.toLocaleDateString()}`)
+    console.log('')
+  })
 }
 
 main()

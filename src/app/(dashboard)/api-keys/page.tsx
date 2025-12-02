@@ -208,19 +208,7 @@ export default function ApiKeysPage() {
     onError: (error: Error) => toast.error(error.message),
   })
 
-  const deletePlatformMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const res = await fetch(`/api/platforms/${id}`, { method: "DELETE" })
-      if (!res.ok) throw new Error((await res.json()).error || "Failed to delete")
-      return res.json()
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["platforms"] })
-      queryClient.invalidateQueries({ queryKey: ["api-keys"] })
-      toast.success("Platform deleted!")
-    },
-    onError: (error: Error) => toast.error(error.message),
-  })
+
 
   const handleOpenForm = (key?: any) => {
     setSelectedKey(key || null)
@@ -257,12 +245,6 @@ export default function ApiKeysPage() {
       await updatePlatformMutation.mutateAsync({ id: selectedPlatform.id, data })
     } else {
       await createPlatformMutation.mutateAsync(data)
-    }
-  }
-
-  const handleDeletePlatform = (platform: any) => {
-    if (confirm(`Delete "${platform.name}" and all its API keys?`)) {
-      deletePlatformMutation.mutate(platform.id)
     }
   }
 
@@ -869,22 +851,13 @@ export default function ApiKeysPage() {
                   <span className="text-sm text-gray-200">{p.name}</span>
                   <span className="text-xs text-gray-500">({p._count?.apiKeys || 0})</span>
                 </div>
-                <div className="flex gap-1">
-                  <button
-                    type="button"
-                    onClick={() => handleOpenPlatformForm(p)}
-                    className="rounded p-1 text-gray-500 hover:bg-gray-700 hover:text-gray-300"
-                  >
-                    <Edit className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDeletePlatform(p)}
-                    className="rounded p-1 text-gray-500 hover:bg-gray-700 hover:text-red-400"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => handleOpenPlatformForm(p)}
+                  className="rounded p-1 text-gray-500 hover:bg-gray-700 hover:text-gray-300"
+                >
+                  <Edit className="h-3.5 w-3.5" />
+                </button>
               </div>
             ))}
           </div>

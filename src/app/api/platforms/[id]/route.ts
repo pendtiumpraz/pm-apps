@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma"
 
 export const dynamic = "force-dynamic"
 
+// Only allow updating platform (name, color, etc) - no delete for users
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await auth()
@@ -36,36 +37,4 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const session = await auth()
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-
-    const platform = await prisma.apiPlatform.findFirst({
-      where: { id: params.id, userId: session.user.id, deletedAt: null },
-    })
-
-    if (!platform) {
-      return NextResponse.json({ error: "Platform not found" }, { status: 404 })
-    }
-
-    // Soft delete platform and its api keys
-    await prisma.$transaction([
-      prisma.apiKey.updateMany({
-        where: { platformId: params.id },
-        data: { deletedAt: new Date() },
-      }),
-      prisma.apiPlatform.update({
-        where: { id: params.id },
-        data: { deletedAt: new Date() },
-      }),
-    ])
-
-    return NextResponse.json({ message: "Platform deleted" })
-  } catch (error) {
-    console.error("DELETE /api/platforms/[id] error:", error)
-    return NextResponse.json({ error: "Failed to delete platform" }, { status: 500 })
-  }
-}
+// DELETE is disabled for regular users - only super admin can delete platforms
