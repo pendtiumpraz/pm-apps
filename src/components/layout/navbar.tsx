@@ -11,6 +11,7 @@ import {
   LogOut,
   User,
   Settings,
+  Shield,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -22,6 +23,8 @@ export function Navbar({ onMenuClick }: NavbarProps) {
   const { data: session } = useSession()
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
+  
+  const isAdmin = (session?.user as any)?.role === "ADMIN"
 
   return (
     <header className="fixed left-0 right-0 top-0 z-40 h-16 border-b border-gray-800 bg-gray-950/80 backdrop-blur-lg">
@@ -101,6 +104,15 @@ export function Navbar({ onMenuClick }: NavbarProps) {
                   <p className="text-xs text-gray-400">{session?.user?.email}</p>
                 </div>
                 <div className="py-1">
+                  {isAdmin && (
+                    <Link
+                      href="/admin"
+                      className="flex items-center gap-3 px-4 py-2 text-sm text-red-400 hover:bg-gray-800"
+                    >
+                      <Shield className="h-4 w-4" />
+                      Admin Panel
+                    </Link>
+                  )}
                   <Link
                     href="/settings"
                     className="flex items-center gap-3 px-4 py-2 text-sm text-gray-300 hover:bg-gray-800"
