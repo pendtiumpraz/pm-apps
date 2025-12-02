@@ -328,26 +328,38 @@ export default function ApiKeysPage() {
     const file = e.target.files?.[0]
     if (!file) return
 
-    const text = await file.text()
-    const lines = text.split("\n").filter((line) => line.trim())
-    const headers = lines[0].split(",").map((h) => h.trim())
+    try {
+      const text = await file.text()
+      const lines = text.split("\n").filter((line) => line.trim())
+      
+      if (lines.length < 2) {
+        toast.error("CSV must have header and at least one data row")
+        return
+      }
 
-    const rows = lines.slice(1).map((line) => {
-      const values = line.split(",").map((v) => v.trim())
-      const row: any = {}
-      headers.forEach((h, i) => {
-        row[h] = values[i] || ""
-      })
-      return row
-    })
+      const headers = lines[0].split(",").map((h) => h.trim())
 
-    if (rows.length === 0) {
-      toast.error("No data found in CSV")
-      return
+      const rows = lines.slice(1).map((line) => {
+        const values = line.split(",").map((v) => v.trim())
+        const row: any = {}
+        headers.forEach((h, i) => {
+          row[h] = values[i] || ""
+        })
+        return row
+      }).filter(row => row.email) // Filter out empty rows
+
+      if (rows.length === 0) {
+        toast.error("No valid data found in CSV")
+        return
+      }
+
+      await importMutation.mutateAsync(rows)
+    } catch (error: any) {
+      console.error("CSV import error:", error)
+      toast.error(error.message || "Failed to import CSV")
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = ""
     }
-
-    await importMutation.mutateAsync(rows)
-    if (fileInputRef.current) fileInputRef.current.value = ""
   }
 
   const platforms = platformsData?.data || []
