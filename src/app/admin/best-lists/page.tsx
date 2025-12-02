@@ -338,7 +338,7 @@ export default function AdminBestListsPage() {
 
       {hasChanges && (
         <div className="rounded-lg bg-yellow-500/10 border border-yellow-500/20 p-3 text-sm text-yellow-400">
-          You have unsaved ranking changes. Click "Save Rankings" to apply.
+          You have unsaved ranking changes. Click &quot;Save Rankings&quot; to apply.
         </div>
       )}
 
