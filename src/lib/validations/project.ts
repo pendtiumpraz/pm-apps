@@ -6,7 +6,7 @@ export const projectSchema = z.object({
   client: z.string().nullish(),
   clientContact: z.string().nullish(),
   projectType: z.enum(["FRONTEND", "BACKEND", "FULLSTACK", "MOBILE", "AI", "OTHER"]),
-  category: z.enum(["CLIENT", "OWN"]).default("CLIENT"),
+  category: z.enum(["CLIENT", "OWN"]),
   stack: z.string().nullish(),
   hosting: z.string().nullish(),
   repositoryUrl: z.string().url().nullish().or(z.literal("")),
