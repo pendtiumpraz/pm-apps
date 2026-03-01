@@ -297,10 +297,10 @@ export function ProjectTable({ onEdit, onDelete }: ProjectTableProps) {
                                                 </span>
                                             </td>
 
-                                            {/* Status */
-                                                <td className="px-4 py-3">
-                                                    <StatusBadge status={project.status} />
-                                                </td>
+                                            {/* Status */}
+                                            <td className="px-4 py-3">
+                                                <StatusBadge status={project.status} />
+                                            </td>
 
                                             {/* Progress */}
                                             <td className="px-4 py-3">
