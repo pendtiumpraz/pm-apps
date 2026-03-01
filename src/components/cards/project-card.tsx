@@ -15,6 +15,7 @@ interface ProjectCardProps {
     stack?: string | null
     status: string
     category?: string | null
+    projectNature?: string | null
     deadline?: string | Date | null
     progress: number
     totalValue: number
