@@ -2,11 +2,13 @@
 
 import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { Plus, Search, Filter, LayoutGrid, List, User, Rocket } from "lucide-react"
+import { Plus, Search, LayoutGrid, List, Table2, Columns3 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { RightPanel } from "@/components/ui/right-panel"
 import { ProjectCard } from "@/components/cards/project-card"
+import { ProjectTable } from "@/components/cards/project-table"
+import { ProjectKanban } from "@/components/cards/project-kanban"
 import { ProjectCardSkeleton } from "@/components/ui/skeleton"
 import { ProjectForm } from "@/components/forms/project-form"
 import { toast } from "react-hot-toast"
@@ -18,11 +20,11 @@ export default function ProjectsPage() {
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("")
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+  const [viewMode, setViewMode] = useState<"grid" | "list" | "table" | "kanban">("grid")
 
   const queryClient = useQueryClient()
 
-  // Fetch projects
+  // Fetch projects (for grid/list modes)
   const { data, isLoading } = useQuery({
     queryKey: ["projects", search, statusFilter, categoryFilter],
     queryFn: async () => {
@@ -34,6 +36,7 @@ export default function ProjectsPage() {
       if (!res.ok) throw new Error("Failed to fetch")
       return res.json()
     },
+    enabled: viewMode !== "table" && viewMode !== "kanban", // Table & Kanban have their own queries
   })
 
   // Create mutation
@@ -52,6 +55,8 @@ export default function ProjectsPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] })
+      queryClient.invalidateQueries({ queryKey: ["projects-table"] })
+      queryClient.invalidateQueries({ queryKey: ["projects-clients"] })
       queryClient.invalidateQueries({ queryKey: ["sidebar-projects"] })
       toast.success("Project created successfully!")
       handleCloseForm()
@@ -77,6 +82,8 @@ export default function ProjectsPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] })
+      queryClient.invalidateQueries({ queryKey: ["projects-table"] })
+      queryClient.invalidateQueries({ queryKey: ["projects-clients"] })
       queryClient.invalidateQueries({ queryKey: ["sidebar-projects"] })
       toast.success("Project updated successfully!")
       handleCloseForm()
@@ -98,6 +105,8 @@ export default function ProjectsPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] })
+      queryClient.invalidateQueries({ queryKey: ["projects-table"] })
+      queryClient.invalidateQueries({ queryKey: ["projects-clients"] })
       queryClient.invalidateQueries({ queryKey: ["sidebar-projects"] })
       toast.success("Project deleted successfully!")
     },
@@ -142,98 +151,132 @@ export default function ProjectsPage() {
             Manage all your client and personal projects
           </p>
         </div>
-        <Button onClick={() => handleOpenForm()}>
-          <Plus className="h-4 w-4" />
-          New Project
-        </Button>
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="relative flex-1 sm:max-w-xs">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
-          <Input
-            placeholder="Search projects..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="h-10 rounded-lg border border-gray-700 bg-gray-800 px-3 text-sm text-gray-100 focus:border-primary-500 focus:outline-none"
-        >
-          <option value="">All Status</option>
-          <option value="PLANNING">Planning</option>
-          <option value="ACTIVE">Active</option>
-          <option value="ON_HOLD">On Hold</option>
-          <option value="REVIEW">Review</option>
-          <option value="COMPLETED">Completed</option>
-        </select>
-        <select
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
-          className="h-10 rounded-lg border border-gray-700 bg-gray-800 px-3 text-sm text-gray-100 focus:border-primary-500 focus:outline-none"
-        >
-          <option value="">All Category</option>
-          <option value="CLIENT">👤 Client</option>
-          <option value="OWN">🚀 Own Project</option>
-        </select>
-        <div className="flex rounded-lg border border-gray-700">
-          <button
-            onClick={() => setViewMode("grid")}
-            className={`p-2 ${viewMode === "grid" ? "bg-gray-700 text-gray-100" : "text-gray-400 hover:text-gray-100"}`}
-          >
-            <LayoutGrid className="h-4 w-4" />
-          </button>
-          <button
-            onClick={() => setViewMode("list")}
-            className={`p-2 ${viewMode === "list" ? "bg-gray-700 text-gray-100" : "text-gray-400 hover:text-gray-100"}`}
-          >
-            <List className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-
-      {/* Projects Grid */}
-      {isLoading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <ProjectCardSkeleton key={i} />
-          ))}
-        </div>
-      ) : projects.length > 0 ? (
-        <div
-          className={
-            viewMode === "grid"
-              ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
-              : "space-y-4"
-          }
-        >
-          {projects.map((project: any) => (
-            <ProjectCard
-              key={project.id}
-              project={project}
-              onEdit={() => handleOpenForm(project)}
-              onDelete={() => handleDelete(project)}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-800 py-16">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-800">
-            <Plus className="h-8 w-8 text-gray-500" />
+        <div className="flex items-center gap-3">
+          {/* View Mode Toggle */}
+          <div className="flex rounded-lg border border-gray-700">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`p-2 ${viewMode === "grid" ? "bg-gray-700 text-gray-100" : "text-gray-400 hover:text-gray-100"}`}
+              title="Grid view"
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`p-2 ${viewMode === "list" ? "bg-gray-700 text-gray-100" : "text-gray-400 hover:text-gray-100"}`}
+              title="List view"
+            >
+              <List className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setViewMode("table")}
+              className={`p-2 ${viewMode === "table" ? "bg-gray-700 text-gray-100" : "text-gray-400 hover:text-gray-100"}`}
+              title="Table view"
+            >
+              <Table2 className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setViewMode("kanban")}
+              className={`p-2 ${viewMode === "kanban" ? "bg-gray-700 text-gray-100" : "text-gray-400 hover:text-gray-100"}`}
+              title="Kanban board"
+            >
+              <Columns3 className="h-4 w-4" />
+            </button>
           </div>
-          <h3 className="mt-4 text-lg font-medium text-gray-300">No projects found</h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Get started by creating your first project
-          </p>
-          <Button onClick={() => handleOpenForm()} className="mt-4">
+          <Button onClick={() => handleOpenForm()}>
             <Plus className="h-4 w-4" />
-            Create Project
+            New Project
           </Button>
         </div>
+      </div>
+
+      {/* Table View */}
+      {viewMode === "table" ? (
+        <ProjectTable
+          onEdit={(project) => handleOpenForm(project)}
+          onDelete={(project) => handleDelete(project)}
+        />
+      ) : viewMode === "kanban" ? (
+        <ProjectKanban
+          onEdit={(project) => handleOpenForm(project)}
+          onDelete={(project) => handleDelete(project)}
+        />
+      ) : (
+        <>
+          {/* Filters (grid/list only) */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <div className="relative flex-1 sm:max-w-xs">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+              <Input
+                placeholder="Search projects..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="h-10 rounded-lg border border-gray-700 bg-gray-800 px-3 text-sm text-gray-100 focus:border-primary-500 focus:outline-none"
+            >
+              <option value="">All Status</option>
+              <option value="PLANNING">Planning</option>
+              <option value="ACTIVE">Active</option>
+              <option value="ON_HOLD">On Hold</option>
+              <option value="REVIEW">Review</option>
+              <option value="COMPLETED">Completed</option>
+            </select>
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              className="h-10 rounded-lg border border-gray-700 bg-gray-800 px-3 text-sm text-gray-100 focus:border-primary-500 focus:outline-none"
+            >
+              <option value="">All Category</option>
+              <option value="CLIENT">👤 Client</option>
+              <option value="OWN">🚀 Own Project</option>
+            </select>
+          </div>
+
+          {/* Projects Grid/List */}
+          {isLoading ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <ProjectCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : projects.length > 0 ? (
+            <div
+              className={
+                viewMode === "grid"
+                  ? "grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                  : "space-y-4"
+              }
+            >
+              {projects.map((project: any) => (
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  onEdit={() => handleOpenForm(project)}
+                  onDelete={() => handleDelete(project)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-800 py-16">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-800">
+                <Plus className="h-8 w-8 text-gray-500" />
+              </div>
+              <h3 className="mt-4 text-lg font-medium text-gray-300">No projects found</h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Get started by creating your first project
+              </p>
+              <Button onClick={() => handleOpenForm()} className="mt-4">
+                <Plus className="h-4 w-4" />
+                Create Project
+              </Button>
+            </div>
+          )}
+        </>
       )}
 
       {/* Right Panel Form */}

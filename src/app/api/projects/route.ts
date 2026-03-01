@@ -19,22 +19,63 @@ export async function GET(req: NextRequest) {
     const search = searchParams.get("search")
     const type = searchParams.get("type")
     const category = searchParams.get("category")
+    const client = searchParams.get("client")
+    const page = parseInt(searchParams.get("page") || "0")
+    const limit = parseInt(searchParams.get("limit") || "0")
 
-    const projects = await prisma.project.findMany({
-      where: {
-        userId: session.user.id,
-        deletedAt: null,
-        ...(status && { status: status as any }),
-        ...(type && { projectType: type as any }),
-        ...(category && { category: category as any }),
-        ...(search && {
-          OR: [
-            { name: { contains: search, mode: "insensitive" } },
-            { client: { contains: search, mode: "insensitive" } },
-            { stack: { contains: search, mode: "insensitive" } },
-          ],
+    const where = {
+      userId: session.user.id,
+      deletedAt: null,
+      ...(status && { status: status as any }),
+      ...(type && { projectType: type as any }),
+      ...(category && { category: category as any }),
+      ...(client && { client: { contains: client, mode: "insensitive" as const } }),
+      ...(search && {
+        OR: [
+          { name: { contains: search, mode: "insensitive" as const } },
+          { client: { contains: search, mode: "insensitive" as const } },
+          { stack: { contains: search, mode: "insensitive" as const } },
+        ],
+      }),
+    }
+
+    // If pagination is requested (limit > 0)
+    if (limit > 0) {
+      const [projects, total] = await Promise.all([
+        prisma.project.findMany({
+          where,
+          include: {
+            _count: {
+              select: {
+                tasks: true,
+                payments: true,
+                invoices: true,
+                domains: true,
+                hostings: true,
+              },
+            },
+          },
+          orderBy: [{ priority: "asc" }, { deadline: "asc" }, { createdAt: "desc" }],
+          skip: (page - 1) * limit,
+          take: limit,
         }),
-      },
+        prisma.project.count({ where }),
+      ])
+
+      return NextResponse.json({
+        data: projects,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+      })
+    }
+
+    // No pagination - return all
+    const projects = await prisma.project.findMany({
+      where,
       include: {
         _count: {
           select: {
