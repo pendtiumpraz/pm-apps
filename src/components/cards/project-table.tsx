@@ -24,18 +24,20 @@ export function ProjectTable({ onEdit, onDelete }: ProjectTableProps) {
     const [clientFilter, setClientFilter] = useState("")
     const [statusFilter, setStatusFilter] = useState("")
     const [categoryFilter, setCategoryFilter] = useState("")
+    const [natureFilter, setNatureFilter] = useState("")
     const [page, setPage] = useState(1)
     const [sortField, setSortField] = useState<string>("priority")
     const [sortDir, setSortDir] = useState<"asc" | "desc">("asc")
 
     // Fetch with pagination
     const { data, isLoading } = useQuery({
-        queryKey: ["projects-table", search, clientFilter, statusFilter, categoryFilter, page],
+        queryKey: ["projects-table", search, clientFilter, statusFilter, categoryFilter, natureFilter, page],
         queryFn: async () => {
             const params = new URLSearchParams()
             if (search) params.set("search", search)
             if (statusFilter) params.set("status", statusFilter)
             if (categoryFilter) params.set("category", categoryFilter)
+            if (natureFilter) params.set("nature", natureFilter)
             if (clientFilter) params.set("client", clientFilter)
             params.set("page", page.toString())
             params.set("limit", ITEMS_PER_PAGE.toString())
@@ -158,6 +160,15 @@ export function ProjectTable({ onEdit, onDelete }: ProjectTableProps) {
                     <option value="CLIENT">👤 Client</option>
                     <option value="OWN">🚀 Own Project</option>
                 </select>
+                <select
+                    value={natureFilter}
+                    onChange={(e) => handleFilterChange(setNatureFilter, e.target.value)}
+                    className="h-10 rounded-lg border border-gray-700 bg-gray-800 px-3 text-sm text-gray-100 focus:border-primary-500 focus:outline-none"
+                >
+                    <option value="">All Nature</option>
+                    <option value="STATIC">📄 Static</option>
+                    <option value="DYNAMIC">🗄️ Dynamic</option>
+                </select>
                 <div className="text-sm text-gray-400">
                     {pagination.total} project{pagination.total !== 1 ? "s" : ""}
                 </div>
@@ -177,6 +188,9 @@ export function ProjectTable({ onEdit, onDelete }: ProjectTableProps) {
                                 </th>
                                 <th className="px-4 py-3 text-left">
                                     <span className="text-xs font-medium uppercase tracking-wider text-gray-400">Category</span>
+                                </th>
+                                <th className="px-4 py-3 text-left">
+                                    <span className="text-xs font-medium uppercase tracking-wider text-gray-400">Nature</span>
                                 </th>
                                 <th className="px-4 py-3 text-left">
                                     <span className="text-xs font-medium uppercase tracking-wider text-gray-400">Status</span>
@@ -199,7 +213,7 @@ export function ProjectTable({ onEdit, onDelete }: ProjectTableProps) {
                             {isLoading ? (
                                 Array.from({ length: 5 }).map((_, i) => (
                                     <tr key={i}>
-                                        {Array.from({ length: 8 }).map((_, j) => (
+                                        {Array.from({ length: 9 }).map((_, j) => (
                                             <td key={j} className="px-4 py-3">
                                                 <div className="h-4 animate-pulse rounded bg-gray-800" />
                                             </td>
@@ -269,10 +283,24 @@ export function ProjectTable({ onEdit, onDelete }: ProjectTableProps) {
                                                 </span>
                                             </td>
 
-                                            {/* Status */}
+                                            {/* Nature */}
                                             <td className="px-4 py-3">
-                                                <StatusBadge status={project.status} />
+                                                <span
+                                                    className={cn(
+                                                        "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
+                                                        project.projectNature === "STATIC"
+                                                            ? "bg-cyan-500/15 text-cyan-400 ring-1 ring-cyan-500/30"
+                                                            : "bg-violet-500/15 text-violet-400 ring-1 ring-violet-500/30"
+                                                    )}
+                                                >
+                                                    {project.projectNature === "STATIC" ? "📄 Static" : "🗄️ Dynamic"}
+                                                </span>
                                             </td>
+
+                                            {/* Status */
+                                                <td className="px-4 py-3">
+                                                    <StatusBadge status={project.status} />
+                                                </td>
 
                                             {/* Progress */}
                                             <td className="px-4 py-3">
@@ -339,7 +367,7 @@ export function ProjectTable({ onEdit, onDelete }: ProjectTableProps) {
                                 })
                             ) : (
                                 <tr>
-                                    <td colSpan={8} className="px-4 py-12 text-center text-gray-500">
+                                    <td colSpan={9} className="px-4 py-12 text-center text-gray-500">
                                         No projects found matching your filters
                                     </td>
                                 </tr>

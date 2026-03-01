@@ -211,6 +211,17 @@ export default function ProjectDetailPage() {
                   <><User className="h-3 w-3" /> Client</>
                 )}
               </span>
+              {/* Nature Badge */}
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium",
+                  project.projectNature === "STATIC"
+                    ? "bg-cyan-500/15 text-cyan-400 ring-1 ring-cyan-500/30"
+                    : "bg-violet-500/15 text-violet-400 ring-1 ring-violet-500/30"
+                )}
+              >
+                {project.projectNature === "STATIC" ? "📄 Static" : "🗄️ Dynamic"}
+              </span>
             </div>
             {project.client && (
               <p className="mt-1 text-gray-400">{project.client}</p>
@@ -235,7 +246,7 @@ export default function ProjectDetailPage() {
             <span className="text-sm">Deadline</span>
           </div>
           <p className={`mt-2 text-lg font-semibold ${daysUntilDeadline !== null && daysUntilDeadline < 0 ? "text-red-400" :
-              daysUntilDeadline !== null && daysUntilDeadline <= 7 ? "text-yellow-400" : "text-gray-100"
+            daysUntilDeadline !== null && daysUntilDeadline <= 7 ? "text-yellow-400" : "text-gray-100"
             }`}>
             {project.deadline ? formatDate(project.deadline) : "No deadline"}
             {daysUntilDeadline !== null && (
@@ -326,7 +337,7 @@ export default function ProjectDetailPage() {
                     <dd className="text-sm text-gray-300">{project.vercelAccount}</dd>
                   </div>
                 )}
-                {project.vercelAccountDb && (
+                {project.vercelAccountDb && project.projectNature === "DYNAMIC" && (
                   <div>
                     <dt className="text-xs text-gray-500">Database Account</dt>
                     <dd className="text-sm text-gray-300">{project.vercelAccountDb}</dd>

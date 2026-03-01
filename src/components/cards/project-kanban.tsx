@@ -40,6 +40,7 @@ const STATUS_COLUMNS = [
 
 export function ProjectKanban({ onEdit, onDelete }: ProjectKanbanProps) {
     const [activeTab, setActiveTab] = useState<"OWN" | "CLIENT">("OWN")
+    const [natureFilter, setNatureFilter] = useState<"" | "STATIC" | "DYNAMIC">("")
     const [activeId, setActiveId] = useState<string | null>(null)
     const queryClient = useQueryClient()
 
@@ -73,10 +74,14 @@ export function ProjectKanban({ onEdit, onDelete }: ProjectKanbanProps) {
 
     const allProjects = data?.data || []
 
-    // Filter projects by active tab category
+    // Filter projects by active tab category + nature
     const filteredProjects = useMemo(() => {
-        return allProjects.filter((p: any) => (p.category || "CLIENT") === activeTab)
-    }, [allProjects, activeTab])
+        return allProjects.filter((p: any) => {
+            const matchCategory = (p.category || "CLIENT") === activeTab
+            const matchNature = !natureFilter || (p.projectNature || "DYNAMIC") === natureFilter
+            return matchCategory && matchNature
+        })
+    }, [allProjects, activeTab, natureFilter])
 
     const projectsByStatus = useMemo(() => {
         const grouped: Record<string, any[]> = {}
@@ -191,6 +196,46 @@ export function ProjectKanban({ onEdit, onDelete }: ProjectKanbanProps) {
                         {clientCount}
                     </span>
                 </button>
+            </div>
+
+            {/* Nature Filter */}
+            <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500">Nature:</span>
+                <div className="flex items-center gap-1">
+                    <button
+                        onClick={() => setNatureFilter("")}
+                        className={cn(
+                            "rounded-full px-2.5 py-1 text-xs font-medium transition-all",
+                            natureFilter === ""
+                                ? "bg-gray-700 text-gray-100"
+                                : "text-gray-500 hover:text-gray-300 hover:bg-gray-800"
+                        )}
+                    >
+                        All
+                    </button>
+                    <button
+                        onClick={() => setNatureFilter("STATIC")}
+                        className={cn(
+                            "rounded-full px-2.5 py-1 text-xs font-medium transition-all",
+                            natureFilter === "STATIC"
+                                ? "bg-cyan-500/20 text-cyan-400 ring-1 ring-cyan-500/30"
+                                : "text-gray-500 hover:text-gray-300 hover:bg-gray-800"
+                        )}
+                    >
+                        📄 Static
+                    </button>
+                    <button
+                        onClick={() => setNatureFilter("DYNAMIC")}
+                        className={cn(
+                            "rounded-full px-2.5 py-1 text-xs font-medium transition-all",
+                            natureFilter === "DYNAMIC"
+                                ? "bg-violet-500/20 text-violet-400 ring-1 ring-violet-500/30"
+                                : "text-gray-500 hover:text-gray-300 hover:bg-gray-800"
+                        )}
+                    >
+                        🗄️ Dynamic
+                    </button>
+                </div>
             </div>
 
             {/* Kanban Board */}
@@ -442,6 +487,18 @@ function KanbanCardContent({
                         )}
                     >
                         {isOwnProject ? <Rocket className="h-2.5 w-2.5" /> : <User className="h-2.5 w-2.5" />}
+                    </span>
+
+                    {/* Nature badge */}
+                    <span
+                        className={cn(
+                            "rounded-full px-1 py-0 text-[9px] font-medium",
+                            project.projectNature === "STATIC"
+                                ? "bg-cyan-500/15 text-cyan-400"
+                                : "bg-violet-500/15 text-violet-400"
+                        )}
+                    >
+                        {project.projectNature === "STATIC" ? "Static" : "DB"}
                     </span>
 
                     {/* Deadline */}

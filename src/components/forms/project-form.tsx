@@ -51,6 +51,7 @@ export function ProjectForm({
       clientContact: initialData?.clientContact ?? "",
       projectType: initialData?.projectType ?? "FULLSTACK",
       category: initialData?.category ?? "CLIENT",
+      projectNature: initialData?.projectNature ?? "DYNAMIC",
       stack: initialData?.stack ?? "",
       hosting: initialData?.hosting ?? "",
       repositoryUrl: initialData?.repositoryUrl ?? "",
@@ -71,6 +72,7 @@ export function ProjectForm({
 
   const selectedColor = watch("color")
   const selectedCategory = watch("category")
+  const selectedNature = watch("projectNature")
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -98,8 +100,8 @@ export function ProjectForm({
               type="button"
               onClick={() => setValue("category", "CLIENT")}
               className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all ${selectedCategory === "CLIENT"
-                  ? "bg-amber-500/20 text-amber-400 ring-1 ring-amber-500/50"
-                  : "text-gray-400 hover:text-gray-200"
+                ? "bg-amber-500/20 text-amber-400 ring-1 ring-amber-500/50"
+                : "text-gray-400 hover:text-gray-200"
                 }`}
             >
               👤 Client Project
@@ -108,8 +110,8 @@ export function ProjectForm({
               type="button"
               onClick={() => setValue("category", "OWN")}
               className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all ${selectedCategory === "OWN"
-                  ? "bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/50"
-                  : "text-gray-400 hover:text-gray-200"
+                ? "bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/50"
+                : "text-gray-400 hover:text-gray-200"
                 }`}
             >
               🚀 Own Project
@@ -129,13 +131,42 @@ export function ProjectForm({
                 type="button"
                 onClick={() => setValue("color", color)}
                 className={`h-8 w-8 rounded-full transition-all ${selectedColor === color
-                    ? "ring-2 ring-white ring-offset-2 ring-offset-gray-900"
-                    : "hover:scale-110"
+                  ? "ring-2 ring-white ring-offset-2 ring-offset-gray-900"
+                  : "hover:scale-110"
                   }`}
                 style={{ backgroundColor: color }}
               />
             ))}
           </div>
+        </div>
+      </div>
+
+      {/* Project Nature Toggle */}
+      <div>
+        <label className="mb-2 block text-sm font-medium text-gray-300">
+          Project Nature <span className="text-red-400">*</span>
+        </label>
+        <div className="flex rounded-lg border border-gray-700 bg-gray-800 p-1">
+          <button
+            type="button"
+            onClick={() => setValue("projectNature", "STATIC")}
+            className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all ${selectedNature === "STATIC"
+                ? "bg-cyan-500/20 text-cyan-400 ring-1 ring-cyan-500/50"
+                : "text-gray-400 hover:text-gray-200"
+              }`}
+          >
+            📄 Static
+          </button>
+          <button
+            type="button"
+            onClick={() => setValue("projectNature", "DYNAMIC")}
+            className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all ${selectedNature === "DYNAMIC"
+                ? "bg-violet-500/20 text-violet-400 ring-1 ring-violet-500/50"
+                : "text-gray-400 hover:text-gray-200"
+              }`}
+          >
+            🗄️ Dynamic (DB)
+          </button>
         </div>
       </div>
 
@@ -269,7 +300,7 @@ export function ProjectForm({
           </svg>
           Vercel Configuration
         </h4>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className={selectedNature === "DYNAMIC" ? "grid gap-4 sm:grid-cols-2" : ""}>
           <div>
             <label className="mb-2 block text-xs font-medium text-gray-400">
               Vercel Account
@@ -279,15 +310,17 @@ export function ProjectForm({
               placeholder="e.g., team-name or email"
             />
           </div>
-          <div>
-            <label className="mb-2 block text-xs font-medium text-gray-400">
-              Vercel Database Account
-            </label>
-            <Input
-              {...register("vercelAccountDb")}
-              placeholder="e.g., db account / project name"
-            />
-          </div>
+          {selectedNature === "DYNAMIC" && (
+            <div>
+              <label className="mb-2 block text-xs font-medium text-gray-400">
+                Vercel Database Account
+              </label>
+              <Input
+                {...register("vercelAccountDb")}
+                placeholder="e.g., db account / project name"
+              />
+            </div>
+          )}
         </div>
       </div>
 

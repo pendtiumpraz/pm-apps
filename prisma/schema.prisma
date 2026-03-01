@@ -85,6 +85,7 @@ model Project {
   clientContact   String?
   projectType     ProjectType     @default(FULLSTACK)
   category        ProjectCategory @default(CLIENT)
+  projectNature   ProjectNature   @default(DYNAMIC)
   stack           String?
   hosting         String?
   repositoryUrl   String?
@@ -121,6 +122,7 @@ model Project {
   @@index([deadline])
   @@index([deletedAt])
   @@index([category])
+  @@index([projectNature])
 }
 
 enum ProjectType {
@@ -144,6 +146,11 @@ enum ProjectStatus {
 enum ProjectCategory {
   CLIENT
   OWN
+}
+
+enum ProjectNature {
+  STATIC
+  DYNAMIC
 }
 
 // ============================================

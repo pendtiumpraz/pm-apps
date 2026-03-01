@@ -20,18 +20,20 @@ export default function ProjectsPage() {
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("")
+  const [natureFilter, setNatureFilter] = useState("")
   const [viewMode, setViewMode] = useState<"grid" | "list" | "table" | "kanban">("grid")
 
   const queryClient = useQueryClient()
 
   // Fetch projects (for grid/list modes)
   const { data, isLoading } = useQuery({
-    queryKey: ["projects", search, statusFilter, categoryFilter],
+    queryKey: ["projects", search, statusFilter, categoryFilter, natureFilter],
     queryFn: async () => {
       const params = new URLSearchParams()
       if (search) params.set("search", search)
       if (statusFilter) params.set("status", statusFilter)
       if (categoryFilter) params.set("category", categoryFilter)
+      if (natureFilter) params.set("nature", natureFilter)
       const res = await fetch(`/api/projects?${params}`)
       if (!res.ok) throw new Error("Failed to fetch")
       return res.json()
@@ -234,6 +236,15 @@ export default function ProjectsPage() {
               <option value="">All Category</option>
               <option value="CLIENT">👤 Client</option>
               <option value="OWN">🚀 Own Project</option>
+            </select>
+            <select
+              value={natureFilter}
+              onChange={(e) => setNatureFilter(e.target.value)}
+              className="h-10 rounded-lg border border-gray-700 bg-gray-800 px-3 text-sm text-gray-100 focus:border-primary-500 focus:outline-none"
+            >
+              <option value="">All Nature</option>
+              <option value="STATIC">📄 Static</option>
+              <option value="DYNAMIC">🗄️ Dynamic</option>
             </select>
           </div>
 

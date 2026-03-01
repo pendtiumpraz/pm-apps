@@ -170,6 +170,15 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
           <CatIcon className="h-3 w-3" />
           {catStyle.label}
         </span>
+        {/* Nature Badge */}
+        <span className={cn(
+          "rounded-full px-2 py-0.5 text-xs font-medium",
+          project.projectNature === "STATIC"
+            ? "bg-cyan-500/10 text-cyan-400"
+            : "bg-violet-500/10 text-violet-400"
+        )}>
+          {project.projectNature === "STATIC" ? "📄 Static" : "🗄️ Dynamic"}
+        </span>
         {project._count?.tasks !== undefined && project._count.tasks > 0 && (
           <span className="rounded-full bg-gray-800 px-2 py-0.5 text-xs text-gray-400">
             {project._count.tasks} tasks

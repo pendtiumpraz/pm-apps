@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
     const search = searchParams.get("search")
     const type = searchParams.get("type")
     const category = searchParams.get("category")
+    const nature = searchParams.get("nature")
     const client = searchParams.get("client")
     const page = parseInt(searchParams.get("page") || "0")
     const limit = parseInt(searchParams.get("limit") || "0")
@@ -29,6 +30,7 @@ export async function GET(req: NextRequest) {
       ...(status && { status: status as any }),
       ...(type && { projectType: type as any }),
       ...(category && { category: category as any }),
+      ...(nature && { projectNature: nature as any }),
       ...(client && { client: { contains: client, mode: "insensitive" as const } }),
       ...(search && {
         OR: [
