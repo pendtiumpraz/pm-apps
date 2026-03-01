@@ -62,7 +62,7 @@ export function ProjectTable({ onEdit, onDelete }: ProjectTableProps) {
         const clients = (allProjectsData?.data || [])
             .map((p: any) => p.client)
             .filter((c: any) => c && c.trim() !== "")
-        return [...new Set(clients)].sort() as string[]
+        return Array.from(new Set(clients)).sort() as string[]
     }, [allProjectsData])
 
     // Reset page on filter change
