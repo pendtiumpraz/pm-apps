@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { Plus, Search, Filter, LayoutGrid, List } from "lucide-react"
+import { Plus, Search, Filter, LayoutGrid, List, User, Rocket } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { RightPanel } from "@/components/ui/right-panel"
@@ -17,17 +17,19 @@ export default function ProjectsPage() {
   const [selectedProject, setSelectedProject] = useState<any>(null)
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("")
+  const [categoryFilter, setCategoryFilter] = useState("")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
 
   const queryClient = useQueryClient()
 
   // Fetch projects
   const { data, isLoading } = useQuery({
-    queryKey: ["projects", search, statusFilter],
+    queryKey: ["projects", search, statusFilter, categoryFilter],
     queryFn: async () => {
       const params = new URLSearchParams()
       if (search) params.set("search", search)
       if (statusFilter) params.set("status", statusFilter)
+      if (categoryFilter) params.set("category", categoryFilter)
       const res = await fetch(`/api/projects?${params}`)
       if (!res.ok) throw new Error("Failed to fetch")
       return res.json()
@@ -168,6 +170,15 @@ export default function ProjectsPage() {
           <option value="ON_HOLD">On Hold</option>
           <option value="REVIEW">Review</option>
           <option value="COMPLETED">Completed</option>
+        </select>
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="h-10 rounded-lg border border-gray-700 bg-gray-800 px-3 text-sm text-gray-100 focus:border-primary-500 focus:outline-none"
+        >
+          <option value="">All Category</option>
+          <option value="CLIENT">👤 Client</option>
+          <option value="OWN">🚀 Own Project</option>
         </select>
         <div className="flex rounded-lg border border-gray-700">
           <button

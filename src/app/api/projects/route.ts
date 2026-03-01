@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get("status")
     const search = searchParams.get("search")
     const type = searchParams.get("type")
+    const category = searchParams.get("category")
 
     const projects = await prisma.project.findMany({
       where: {
@@ -25,6 +26,7 @@ export async function GET(req: NextRequest) {
         deletedAt: null,
         ...(status && { status: status as any }),
         ...(type && { projectType: type as any }),
+        ...(category && { category: category as any }),
         ...(search && {
           OR: [
             { name: { contains: search, mode: "insensitive" } },
