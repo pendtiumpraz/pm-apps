@@ -50,10 +50,13 @@ export function ProjectForm({
       client: initialData?.client ?? "",
       clientContact: initialData?.clientContact ?? "",
       projectType: initialData?.projectType ?? "FULLSTACK",
+      category: initialData?.category ?? "CLIENT",
       stack: initialData?.stack ?? "",
       hosting: initialData?.hosting ?? "",
       repositoryUrl: initialData?.repositoryUrl ?? "",
       liveUrl: initialData?.liveUrl ?? "",
+      vercelAccount: initialData?.vercelAccount ?? "",
+      vercelAccountDb: initialData?.vercelAccountDb ?? "",
       status: initialData?.status ?? "PLANNING",
       priority: initialData?.priority ?? 5,
       deadline: deadlineValue,
@@ -67,6 +70,7 @@ export function ProjectForm({
   })
 
   const selectedColor = watch("color")
+  const selectedCategory = watch("category")
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -82,25 +86,56 @@ export function ProjectForm({
         />
       </div>
 
-      {/* Color Picker */}
-      <div>
-        <label className="mb-2 block text-sm font-medium text-gray-300">
-          Project Color
-        </label>
-        <div className="flex gap-2">
-          {PROJECT_COLORS.map((color) => (
+      {/* Category & Color */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        {/* Category Toggle */}
+        <div>
+          <label className="mb-2 block text-sm font-medium text-gray-300">
+            Project Category <span className="text-red-400">*</span>
+          </label>
+          <div className="flex rounded-lg border border-gray-700 bg-gray-800 p-1">
             <button
-              key={color}
               type="button"
-              onClick={() => setValue("color", color)}
-              className={`h-8 w-8 rounded-full transition-all ${
-                selectedColor === color
-                  ? "ring-2 ring-white ring-offset-2 ring-offset-gray-900"
-                  : "hover:scale-110"
-              }`}
-              style={{ backgroundColor: color }}
-            />
-          ))}
+              onClick={() => setValue("category", "CLIENT")}
+              className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all ${selectedCategory === "CLIENT"
+                  ? "bg-amber-500/20 text-amber-400 ring-1 ring-amber-500/50"
+                  : "text-gray-400 hover:text-gray-200"
+                }`}
+            >
+              👤 Client Project
+            </button>
+            <button
+              type="button"
+              onClick={() => setValue("category", "OWN")}
+              className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all ${selectedCategory === "OWN"
+                  ? "bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/50"
+                  : "text-gray-400 hover:text-gray-200"
+                }`}
+            >
+              🚀 Own Project
+            </button>
+          </div>
+        </div>
+
+        {/* Color Picker */}
+        <div>
+          <label className="mb-2 block text-sm font-medium text-gray-300">
+            Project Color
+          </label>
+          <div className="flex items-center gap-2 pt-1">
+            {PROJECT_COLORS.map((color) => (
+              <button
+                key={color}
+                type="button"
+                onClick={() => setValue("color", color)}
+                className={`h-8 w-8 rounded-full transition-all ${selectedColor === color
+                    ? "ring-2 ring-white ring-offset-2 ring-offset-gray-900"
+                    : "hover:scale-110"
+                  }`}
+                style={{ backgroundColor: color }}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
@@ -224,6 +259,36 @@ export function ProjectForm({
           Hosting
         </label>
         <Input {...register("hosting")} placeholder="e.g., Vercel, Domainesia" />
+      </div>
+
+      {/* Vercel Account Info */}
+      <div className="rounded-lg border border-gray-800 bg-gray-800/30 p-4">
+        <h4 className="mb-3 flex items-center gap-2 text-sm font-medium text-gray-300">
+          <svg className="h-4 w-4" viewBox="0 0 76 65" fill="currentColor">
+            <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" />
+          </svg>
+          Vercel Configuration
+        </h4>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="mb-2 block text-xs font-medium text-gray-400">
+              Vercel Account
+            </label>
+            <Input
+              {...register("vercelAccount")}
+              placeholder="e.g., team-name or email"
+            />
+          </div>
+          <div>
+            <label className="mb-2 block text-xs font-medium text-gray-400">
+              Vercel Database Account
+            </label>
+            <Input
+              {...register("vercelAccountDb")}
+              placeholder="e.g., db account / project name"
+            />
+          </div>
+        </div>
       </div>
 
       {/* URLs */}

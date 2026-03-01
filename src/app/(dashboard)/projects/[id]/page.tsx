@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
 import {
   ArrowLeft, Edit, Trash2, ExternalLink, Github, Calendar, Banknote,
-  CheckSquare, Plus, Globe, Server
+  CheckSquare, Plus, Globe, Server, User, Rocket
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { RightPanel } from "@/components/ui/right-panel"
@@ -16,7 +16,7 @@ import { TaskCard } from "@/components/cards/task-card"
 import { TaskForm } from "@/components/forms/task-form"
 import { ProjectForm } from "@/components/forms/project-form"
 import { Skeleton } from "@/components/ui/skeleton"
-import { formatCurrency, formatDate, getDaysUntil } from "@/lib/utils"
+import { formatCurrency, formatDate, getDaysUntil, cn } from "@/lib/utils"
 import { toast } from "react-hot-toast"
 import type { TaskInput, ProjectInput } from "@/lib/validations/project"
 
@@ -175,6 +175,7 @@ export default function ProjectDetailPage() {
   }
 
   const daysUntilDeadline = project.deadline ? getDaysUntil(project.deadline) : null
+  const isOwnProject = project.category === "OWN"
 
   return (
     <div className="space-y-6">
@@ -195,6 +196,21 @@ export default function ProjectDetailPage() {
               />
               <h1 className="text-2xl font-bold text-gray-100">{project.name}</h1>
               <StatusBadge status={project.status} />
+              {/* Category Badge */}
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium",
+                  isOwnProject
+                    ? "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30"
+                    : "bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/30"
+                )}
+              >
+                {isOwnProject ? (
+                  <><Rocket className="h-3 w-3" /> Own Project</>
+                ) : (
+                  <><User className="h-3 w-3" /> Client</>
+                )}
+              </span>
             </div>
             {project.client && (
               <p className="mt-1 text-gray-400">{project.client}</p>
@@ -218,10 +234,9 @@ export default function ProjectDetailPage() {
             <Calendar className="h-4 w-4" />
             <span className="text-sm">Deadline</span>
           </div>
-          <p className={`mt-2 text-lg font-semibold ${
-            daysUntilDeadline !== null && daysUntilDeadline < 0 ? "text-red-400" :
-            daysUntilDeadline !== null && daysUntilDeadline <= 7 ? "text-yellow-400" : "text-gray-100"
-          }`}>
+          <p className={`mt-2 text-lg font-semibold ${daysUntilDeadline !== null && daysUntilDeadline < 0 ? "text-red-400" :
+              daysUntilDeadline !== null && daysUntilDeadline <= 7 ? "text-yellow-400" : "text-gray-100"
+            }`}>
             {project.deadline ? formatDate(project.deadline) : "No deadline"}
             {daysUntilDeadline !== null && (
               <span className="ml-2 text-sm font-normal">
@@ -294,6 +309,32 @@ export default function ProjectDetailPage() {
               )}
             </dl>
           </div>
+
+          {/* Vercel Info */}
+          {(project.vercelAccount || project.vercelAccountDb) && (
+            <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">
+              <h3 className="flex items-center gap-2 text-lg font-semibold text-gray-100">
+                <svg className="h-4 w-4" viewBox="0 0 76 65" fill="currentColor">
+                  <path d="M37.5274 0L75.0548 65H0L37.5274 0Z" />
+                </svg>
+                Vercel
+              </h3>
+              <dl className="mt-4 space-y-3">
+                {project.vercelAccount && (
+                  <div>
+                    <dt className="text-xs text-gray-500">Account</dt>
+                    <dd className="text-sm text-gray-300">{project.vercelAccount}</dd>
+                  </div>
+                )}
+                {project.vercelAccountDb && (
+                  <div>
+                    <dt className="text-xs text-gray-500">Database Account</dt>
+                    <dd className="text-sm text-gray-300">{project.vercelAccountDb}</dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+          )}
 
           {/* Links */}
           <div className="rounded-xl border border-gray-800 bg-gray-900 p-6">

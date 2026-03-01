@@ -77,27 +77,30 @@ enum UserRole {
 // PROJECT - Data project/client
 // ============================================
 model Project {
-  id            String        @id @default(cuid())
-  userId        String
-  name          String
-  description   String?
-  client        String?
-  clientContact String?
-  projectType   ProjectType   @default(FULLSTACK)
-  stack         String?
-  hosting       String?
-  repositoryUrl String?
-  liveUrl       String?
-  status        ProjectStatus @default(PLANNING)
-  priority      Int           @default(5)
-  deadline      DateTime?
-  progress      Int           @default(0)
-  totalValue    Float         @default(0)
-  paidAmount    Float         @default(0)
-  currency      String        @default("IDR")
-  notes         String?
-  color         String?
-  order         Int           @default(0)
+  id              String          @id @default(cuid())
+  userId          String
+  name            String
+  description     String?
+  client          String?
+  clientContact   String?
+  projectType     ProjectType     @default(FULLSTACK)
+  category        ProjectCategory @default(CLIENT)
+  stack           String?
+  hosting         String?
+  repositoryUrl   String?
+  liveUrl         String?
+  vercelAccount   String?
+  vercelAccountDb String?
+  status          ProjectStatus   @default(PLANNING)
+  priority        Int             @default(5)
+  deadline        DateTime?
+  progress        Int             @default(0)
+  totalValue      Float           @default(0)
+  paidAmount      Float           @default(0)
+  currency        String          @default("IDR")
+  notes           String?
+  color           String?
+  order           Int             @default(0)
 
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   tasks         Task[]
@@ -117,6 +120,7 @@ model Project {
   @@index([status])
   @@index([deadline])
   @@index([deletedAt])
+  @@index([category])
 }
 
 enum ProjectType {
@@ -135,6 +139,11 @@ enum ProjectStatus {
   REVIEW
   COMPLETED
   CANCELLED
+}
+
+enum ProjectCategory {
+  CLIENT
+  OWN
 }
 
 // ============================================

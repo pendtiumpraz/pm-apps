@@ -75,6 +75,8 @@ export async function POST(req: NextRequest) {
         deadline: validated.deadline ? new Date(validated.deadline) : null,
         repositoryUrl: validated.repositoryUrl || null,
         liveUrl: validated.liveUrl || null,
+        vercelAccount: validated.vercelAccount || null,
+        vercelAccountDb: validated.vercelAccountDb || null,
       },
     })
 

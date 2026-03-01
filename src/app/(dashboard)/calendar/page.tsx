@@ -14,7 +14,7 @@ import {
   isToday,
   parseISO,
 } from "date-fns"
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react"
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, User, Rocket } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge, StatusBadge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -26,6 +26,7 @@ interface CalendarEvent {
   type: "deadline" | "task" | "domain" | "hosting" | "payment"
   status?: string
   color?: string
+  category?: string | null
 }
 
 export default function CalendarPage() {
@@ -72,6 +73,15 @@ export default function CalendarPage() {
     },
   })
 
+  // Build a project category lookup
+  const projectCategoryMap = useMemo(() => {
+    const map: Record<string, string> = {}
+    projectsData?.data?.forEach((p: any) => {
+      map[p.id] = p.category || "CLIENT"
+    })
+    return map
+  }, [projectsData])
+
   // Combine all events
   const events = useMemo(() => {
     const allEvents: CalendarEvent[] = []
@@ -86,6 +96,7 @@ export default function CalendarPage() {
           type: "deadline",
           status: p.status,
           color: p.color,
+          category: p.category || "CLIENT",
         })
       }
     })
@@ -99,6 +110,7 @@ export default function CalendarPage() {
           date: new Date(t.dueDate),
           type: "task",
           status: t.status,
+          category: t.projectId ? projectCategoryMap[t.projectId] : null,
         })
       }
     })
@@ -111,6 +123,7 @@ export default function CalendarPage() {
           title: d.domainName,
           date: new Date(d.expiryDate),
           type: "domain",
+          category: d.projectId ? projectCategoryMap[d.projectId] : null,
         })
       }
     })
@@ -123,12 +136,13 @@ export default function CalendarPage() {
           title: h.provider,
           date: new Date(h.expiryDate),
           type: "hosting",
+          category: h.projectId ? projectCategoryMap[h.projectId] : null,
         })
       }
     })
 
     return allEvents
-  }, [projectsData, tasksData, domainsData, hostingsData])
+  }, [projectsData, tasksData, domainsData, hostingsData, projectCategoryMap])
 
   // Get days in current month view
   const days = useMemo(() => {
@@ -145,7 +159,22 @@ export default function CalendarPage() {
   // Get events for selected date
   const selectedDateEvents = selectedDate ? getEventsForDay(selectedDate) : []
 
-  const typeColors = {
+  // Color logic: category-aware for deadlines, type-based for others
+  const getEventBgClass = (event: CalendarEvent) => {
+    if (event.type === "deadline") {
+      return event.category === "OWN" ? "bg-emerald-500" : "bg-amber-500"
+    }
+    return typeColors[event.type]
+  }
+
+  const getEventDotClass = (event: CalendarEvent) => {
+    if (event.type === "deadline") {
+      return event.category === "OWN" ? "bg-emerald-500" : "bg-amber-500"
+    }
+    return typeColors[event.type]
+  }
+
+  const typeColors: Record<string, string> = {
     deadline: "bg-primary-500",
     task: "bg-blue-500",
     domain: "bg-yellow-500",
@@ -153,7 +182,7 @@ export default function CalendarPage() {
     payment: "bg-purple-500",
   }
 
-  const typeLabels = {
+  const typeLabels: Record<string, string> = {
     deadline: "Project Deadline",
     task: "Task Due",
     domain: "Domain Expiry",
@@ -215,7 +244,7 @@ export default function CalendarPage() {
             {days.map((day) => {
               const dayEvents = getEventsForDay(day)
               const isSelected = selectedDate && isSameDay(day, selectedDate)
-              
+
               return (
                 <button
                   key={day.toISOString()}
@@ -225,8 +254,8 @@ export default function CalendarPage() {
                     isToday(day)
                       ? "border-primary-500 bg-primary-500/10"
                       : isSelected
-                      ? "border-gray-600 bg-gray-800"
-                      : "border-gray-800 hover:border-gray-700 hover:bg-gray-800/50"
+                        ? "border-gray-600 bg-gray-800"
+                        : "border-gray-800 hover:border-gray-700 hover:bg-gray-800/50"
                   )}
                 >
                   <span
@@ -243,7 +272,7 @@ export default function CalendarPage() {
                         key={event.id}
                         className={cn(
                           "truncate rounded px-1 py-0.5 text-xs text-white",
-                          typeColors[event.type]
+                          getEventBgClass(event)
                         )}
                       >
                         {event.title}
@@ -262,12 +291,26 @@ export default function CalendarPage() {
 
           {/* Legend */}
           <div className="mt-6 flex flex-wrap gap-4">
-            {Object.entries(typeColors).map(([type, color]) => (
-              <div key={type} className="flex items-center gap-2">
-                <div className={cn("h-3 w-3 rounded", color)} />
-                <span className="text-xs text-gray-400">{typeLabels[type as keyof typeof typeLabels]}</span>
-              </div>
-            ))}
+            <div className="flex items-center gap-2">
+              <div className="h-3 w-3 rounded bg-amber-500" />
+              <span className="text-xs text-gray-400">Client Deadline</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-3 w-3 rounded bg-emerald-500" />
+              <span className="text-xs text-gray-400">Own Project Deadline</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-3 w-3 rounded bg-blue-500" />
+              <span className="text-xs text-gray-400">Task Due</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-3 w-3 rounded bg-yellow-500" />
+              <span className="text-xs text-gray-400">Domain Expiry</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-3 w-3 rounded bg-green-500" />
+              <span className="text-xs text-gray-400">Hosting Expiry</span>
+            </div>
           </div>
         </div>
 
@@ -288,10 +331,31 @@ export default function CalendarPage() {
                     <div className="flex items-start justify-between">
                       <div>
                         <div className="flex items-center gap-2">
-                          <div className={cn("h-2 w-2 rounded-full", typeColors[event.type])} />
+                          <div className={cn("h-2 w-2 rounded-full", getEventDotClass(event))} />
                           <span className="text-xs text-gray-400">
-                            {typeLabels[event.type]}
+                            {event.type === "deadline"
+                              ? event.category === "OWN"
+                                ? "Own Project Deadline"
+                                : "Client Deadline"
+                              : typeLabels[event.type]}
                           </span>
+                          {/* Category indicator for deadlines */}
+                          {event.type === "deadline" && (
+                            <span
+                              className={cn(
+                                "inline-flex items-center gap-0.5 rounded-full px-1.5 py-0 text-[10px] font-medium",
+                                event.category === "OWN"
+                                  ? "bg-emerald-500/15 text-emerald-400"
+                                  : "bg-amber-500/15 text-amber-400"
+                              )}
+                            >
+                              {event.category === "OWN" ? (
+                                <><Rocket className="h-2.5 w-2.5" /> Own</>
+                              ) : (
+                                <><User className="h-2.5 w-2.5" /> Client</>
+                              )}
+                            </span>
+                          )}
                         </div>
                         <p className="mt-1 font-medium text-gray-100">{event.title}</p>
                       </div>
@@ -324,10 +388,22 @@ export default function CalendarPage() {
                     key={event.id}
                     className="flex items-center gap-3 rounded-lg bg-gray-800/30 p-2"
                   >
-                    <div className={cn("h-2 w-2 rounded-full", typeColors[event.type])} />
+                    <div className={cn("h-2 w-2 rounded-full", getEventDotClass(event))} />
                     <div className="flex-1 min-w-0">
                       <p className="truncate text-sm text-gray-100">{event.title}</p>
-                      <p className="text-xs text-gray-500">{format(event.date, "MMM d")}</p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-xs text-gray-500">{format(event.date, "MMM d")}</p>
+                        {event.type === "deadline" && (
+                          <span
+                            className={cn(
+                              "text-[10px] font-medium",
+                              event.category === "OWN" ? "text-emerald-400" : "text-amber-400"
+                            )}
+                          >
+                            • {event.category === "OWN" ? "Own" : "Client"}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}

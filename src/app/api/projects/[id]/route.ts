@@ -100,6 +100,8 @@ export async function PUT(
         deadline: validated.deadline ? new Date(validated.deadline) : undefined,
         repositoryUrl: validated.repositoryUrl || null,
         liveUrl: validated.liveUrl || null,
+        vercelAccount: validated.vercelAccount || null,
+        vercelAccountDb: validated.vercelAccountDb || null,
       },
     })
 

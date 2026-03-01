@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { MoreVertical, Calendar, Banknote, Edit, Trash2, ExternalLink } from "lucide-react"
+import { MoreVertical, Calendar, Banknote, Edit, Trash2, ExternalLink, User, Rocket } from "lucide-react"
 import { useState } from "react"
 import { cn, formatCurrency, formatDate, getDaysUntil } from "@/lib/utils"
 import { StatusBadge } from "@/components/ui/badge"
@@ -14,6 +14,7 @@ interface ProjectCardProps {
     client?: string | null
     stack?: string | null
     status: string
+    category?: string | null
     deadline?: string | Date | null
     progress: number
     totalValue: number
@@ -28,6 +29,21 @@ interface ProjectCardProps {
   onDelete?: () => void
 }
 
+const categoryStyles = {
+  CLIENT: {
+    border: "border-l-amber-500",
+    badge: "bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/30",
+    label: "Client",
+    icon: User,
+  },
+  OWN: {
+    border: "border-l-emerald-500",
+    badge: "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30",
+    label: "Own Project",
+    icon: Rocket,
+  },
+}
+
 export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
   const [showMenu, setShowMenu] = useState(false)
 
@@ -35,18 +51,24 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
   const isOverdue = daysUntilDeadline !== null && daysUntilDeadline < 0
   const isUrgent = daysUntilDeadline !== null && daysUntilDeadline <= 3 && daysUntilDeadline >= 0
 
+  const cat = project.category === "OWN" ? "OWN" : "CLIENT"
+  const catStyle = categoryStyles[cat]
+  const CatIcon = catStyle.icon
+
   return (
     <div
       className={cn(
         "group relative rounded-xl border bg-gradient-to-br from-gray-900 to-gray-900/50 p-5 transition-all duration-200",
-        "hover:-translate-y-1 hover:shadow-lg hover:shadow-primary-500/5",
-        "border-gray-800 hover:border-gray-700"
+        "hover:-translate-y-1 hover:shadow-lg",
+        cat === "OWN"
+          ? "border-gray-800 hover:border-emerald-700/50 hover:shadow-emerald-500/5"
+          : "border-gray-800 hover:border-amber-700/50 hover:shadow-amber-500/5"
       )}
     >
-      {/* Color indicator */}
+      {/* Color indicator - uses category color */}
       <div
-        className="absolute left-0 top-0 h-full w-1 rounded-l-xl"
-        style={{ backgroundColor: project.color || "#6366F1" }}
+        className={cn("absolute left-0 top-0 h-full w-1 rounded-l-xl")}
+        style={{ backgroundColor: project.color || (cat === "OWN" ? "#10B981" : "#F59E0B") }}
       />
 
       {/* Header */}
@@ -143,6 +165,11 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
       {/* Footer */}
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <StatusBadge status={project.status} />
+        {/* Category Badge */}
+        <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium", catStyle.badge)}>
+          <CatIcon className="h-3 w-3" />
+          {catStyle.label}
+        </span>
         {project._count?.tasks !== undefined && project._count.tasks > 0 && (
           <span className="rounded-full bg-gray-800 px-2 py-0.5 text-xs text-gray-400">
             {project._count.tasks} tasks
