@@ -21,7 +21,7 @@ export default function ProjectsPage() {
   const [statusFilter, setStatusFilter] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("")
   const [natureFilter, setNatureFilter] = useState("")
-  const [viewMode, setViewMode] = useState<"grid" | "list" | "table" | "kanban">("grid")
+  const [viewMode, setViewMode] = useState<"grid" | "list" | "table" | "kanban">("kanban")
 
   const queryClient = useQueryClient()
 
