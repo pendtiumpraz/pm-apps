@@ -1,0 +1,652 @@
+{
+  "communities": {
+    "0": [
+      "admin_layout",
+      "admin_layout_adminlayout",
+      "admin_layout_adminmenuitems",
+      "admin_page",
+      "admin_page_admindashboardpage",
+      "analytics_page",
+      "analytics_page_analyticspage",
+      "analytics_page_colors",
+      "assets_page",
+      "assets_page_assetspage",
+      "calendar_page",
+      "calendar_page_calendarevent",
+      "calendar_page_calendarpage",
+      "cards_project_card",
+      "cards_project_card_categorystyles",
+      "cards_project_kanban",
+      "cards_project_kanban_draggablecard",
+      "cards_project_kanban_kanbancardcontent",
+      "cards_project_kanban_kanbancolumn",
+      "cards_project_kanban_projectkanbanprops",
+      "cards_project_kanban_status_columns",
+      "cards_project_table",
+      "cards_stats_card",
+      "cards_stats_card_statscardprops",
+      "cards_stats_card_variants",
+      "cards_task_card",
+      "cards_task_card_prioritycolors",
+      "cards_task_card_taskcardprops",
+      "dashboard_layout",
+      "dashboard_layout_dashboardlayout",
+      "dashboard_page",
+      "dashboard_page_dashboardpage",
+      "finance_page",
+      "finance_page_financepage",
+      "frontend_requirements_navbar",
+      "frontend_requirements_sidebar",
+      "id_page",
+      "id_page_projectdetailpage",
+      "layout_navbar",
+      "layout_navbar_navbar",
+      "layout_navbar_navbarprops",
+      "layout_sidebar",
+      "layout_sidebar_menuitems",
+      "layout_sidebar_sidebar",
+      "layout_sidebar_sidebarprops",
+      "lib_utils",
+      "lib_utils_cn",
+      "lib_utils_formatcurrency",
+      "lib_utils_formatdate",
+      "lib_utils_formatdatetime",
+      "lib_utils_getdaysuntil",
+      "lib_utils_getinitials",
+      "ui_badge",
+      "ui_badge_badge",
+      "ui_badge_badgeprops",
+      "ui_badge_dotcolors",
+      "ui_badge_statusbadge",
+      "ui_badge_variantstyles",
+      "ui_progress",
+      "ui_progress_progress",
+      "ui_progress_progressprops",
+      "ui_skeleton",
+      "ui_skeleton_projectcardskeleton",
+      "ui_skeleton_skeletonprops",
+      "ui_skeleton_statscardskeleton",
+      "ui_task_detail_modal",
+      "ui_task_detail_modal_prioritycolors"
+    ],
+    "1": [
+      "api_keys_page",
+      "api_keys_page_apikeyspage",
+      "api_keys_page_maskapikey",
+      "best_lists_page",
+      "best_lists_page_adminbestlistspage",
+      "best_lists_page_listconfig",
+      "best_lists_page_listtype",
+      "best_lists_page_sortableitem",
+      "forms_domain_form",
+      "forms_domain_form_domainform",
+      "forms_domain_form_domainformprops",
+      "forms_hosting_form",
+      "forms_hosting_form_hostingformprops",
+      "forms_payment_form",
+      "forms_payment_form_paymentformprops",
+      "forms_project_form",
+      "forms_project_form_project_colors",
+      "forms_project_form_projectform",
+      "forms_project_form_projectformprops",
+      "forms_task_form",
+      "forms_task_form_taskform",
+      "forms_task_form_taskformprops",
+      "logs_page",
+      "logs_page_actioncolors",
+      "logs_page_adminlogspage",
+      "logs_page_entitytypes",
+      "platforms_page",
+      "platforms_page_adminplatformspage",
+      "projects_page",
+      "projects_page_projectspage",
+      "settings_page",
+      "settings_page_settingspage",
+      "tasks_page",
+      "tasks_page_draggabletask",
+      "tasks_page_droppablecolumn",
+      "tasks_page_taskspage",
+      "tools_page",
+      "tools_page_pricinglabels",
+      "tools_page_toolspage",
+      "ui_button",
+      "ui_button_button",
+      "ui_button_buttonprops",
+      "ui_input",
+      "ui_input_input",
+      "ui_input_inputprops",
+      "ui_right_panel",
+      "ui_right_panel_rightpanelprops",
+      "ui_right_panel_widths",
+      "ui_select",
+      "ui_select_select",
+      "ui_select_selectprops",
+      "ui_textarea",
+      "ui_textarea_textarea",
+      "ui_textarea_textareaprops",
+      "users_page",
+      "users_page_adminuserspage",
+      "validations_project_domaininput",
+      "validations_project_hostinginput",
+      "validations_project_paymentinput",
+      "validations_project_projectinput",
+      "validations_project_taskinput"
+    ],
+    "2": [
+      "best_ai_models_route",
+      "best_ai_models_route_get",
+      "best_ai_models_route_post",
+      "best_cli_route",
+      "best_cli_route_get",
+      "best_cli_route_post",
+      "best_ide_route",
+      "best_ide_route_get",
+      "best_ide_route_post",
+      "best_orchestrator_route",
+      "best_orchestrator_route_get",
+      "best_orchestrator_route_post",
+      "lib_admin",
+      "lib_admin_getadminsession",
+      "lib_admin_isadmin",
+      "lib_admin_requireadmin",
+      "src_app_api_best_ai_models_id_route_ts_id_route",
+      "src_app_api_best_ai_models_id_route_ts_id_route_delete",
+      "src_app_api_best_ai_models_id_route_ts_id_route_put",
+      "src_app_api_best_cli_id_route_ts_id_route",
+      "src_app_api_best_cli_id_route_ts_id_route_delete",
+      "src_app_api_best_cli_id_route_ts_id_route_put",
+      "src_app_api_best_ide_id_route_ts_id_route",
+      "src_app_api_best_ide_id_route_ts_id_route_delete",
+      "src_app_api_best_ide_id_route_ts_id_route_put",
+      "src_app_api_best_orchestrator_id_route_ts_id_route",
+      "src_app_api_best_orchestrator_id_route_ts_id_route_delete",
+      "src_app_api_best_orchestrator_id_route_ts_id_route_put",
+      "src_app_api_tool_categories_id_route_ts_id_route",
+      "src_app_api_tool_categories_id_route_ts_id_route_delete",
+      "src_app_api_tool_categories_id_route_ts_id_route_put",
+      "src_app_api_tools_id_route_ts_id_route",
+      "src_app_api_tools_id_route_ts_id_route_delete",
+      "src_app_api_tools_id_route_ts_id_route_get",
+      "src_app_api_tools_id_route_ts_id_route_put"
+    ],
+    "3": [
+      "check_users",
+      "check_users_main",
+      "check_users_prisma",
+      "package_dependencies",
+      "package_dependencies_auth_prisma_adapter",
+      "package_dependencies_bcryptjs",
+      "package_dependencies_clsx",
+      "package_dependencies_date_fns",
+      "package_dependencies_dnd_kit_core",
+      "package_dependencies_dnd_kit_sortable",
+      "package_dependencies_framer_motion",
+      "package_dependencies_hookform_resolvers",
+      "package_dependencies_lucide_react",
+      "package_dependencies_next",
+      "package_dependencies_react",
+      "package_dependencies_react_dom",
+      "package_dependencies_react_hook_form",
+      "package_dependencies_react_hot_toast",
+      "package_dependencies_recharts",
+      "package_dependencies_tailwind_merge",
+      "package_dependencies_tanstack_react_query",
+      "package_dependencies_zod",
+      "package_dependencies_zustand",
+      "set_admin",
+      "set_admin_main",
+      "set_admin_prisma",
+      "set_admin_prismaclient",
+      "types_next_auth_d",
+      "types_next_auth_d_session"
+    ],
+    "4": [
+      "backend_requirements_account",
+      "backend_requirements_activity",
+      "backend_requirements_domain",
+      "backend_requirements_hosting",
+      "backend_requirements_income",
+      "backend_requirements_invoice",
+      "backend_requirements_payment",
+      "backend_requirements_project",
+      "backend_requirements_session",
+      "backend_requirements_subscription",
+      "backend_requirements_task",
+      "backend_requirements_user",
+      "development_flow_api_analytics",
+      "development_flow_api_projects",
+      "development_flow_nextauth",
+      "development_flow_prisma_client",
+      "development_flow_project_schema",
+      "new_requirements_route_tools",
+      "new_requirements_tool",
+      "new_requirements_toolcategory",
+      "new_requirements_toolpricing"
+    ],
+    "5": [
+      "package",
+      "package_devdependencies",
+      "package_devdependencies_eslint",
+      "package_devdependencies_eslint_config_next",
+      "package_devdependencies_postcss",
+      "package_devdependencies_prisma",
+      "package_devdependencies_tailwindcss",
+      "package_devdependencies_types_bcryptjs",
+      "package_devdependencies_types_node",
+      "package_devdependencies_types_react",
+      "package_devdependencies_typescript",
+      "package_name",
+      "package_private",
+      "package_scripts",
+      "package_scripts_build",
+      "package_scripts_dev",
+      "package_scripts_lint",
+      "package_scripts_postinstall",
+      "package_scripts_start",
+      "package_version"
+    ],
+    "6": [
+      "tsconfig",
+      "tsconfig_compileroptions",
+      "tsconfig_compileroptions_allowjs",
+      "tsconfig_compileroptions_esmoduleinterop",
+      "tsconfig_compileroptions_incremental",
+      "tsconfig_compileroptions_isolatedmodules",
+      "tsconfig_compileroptions_jsx",
+      "tsconfig_compileroptions_lib",
+      "tsconfig_compileroptions_module",
+      "tsconfig_compileroptions_moduleresolution",
+      "tsconfig_compileroptions_noemit",
+      "tsconfig_compileroptions_paths",
+      "tsconfig_compileroptions_plugins",
+      "tsconfig_compileroptions_resolvejsonmodule",
+      "tsconfig_compileroptions_skiplibcheck",
+      "tsconfig_compileroptions_strict",
+      "tsconfig_exclude",
+      "tsconfig_include",
+      "tsconfig_paths"
+    ],
+    "7": [
+      "domains_route",
+      "domains_route_get",
+      "domains_route_post",
+      "hostings_route",
+      "hostings_route_get",
+      "hostings_route_post",
+      "src_app_api_domains_id_route_ts_id_route",
+      "src_app_api_domains_id_route_ts_id_route_delete",
+      "src_app_api_domains_id_route_ts_id_route_get",
+      "src_app_api_domains_id_route_ts_id_route_put",
+      "src_app_api_hostings_id_route_ts_id_route",
+      "src_app_api_hostings_id_route_ts_id_route_delete",
+      "src_app_api_hostings_id_route_ts_id_route_get",
+      "src_app_api_hostings_id_route_ts_id_route_put",
+      "validations_project",
+      "validations_project_domainschema",
+      "validations_project_hostingschema",
+      "validations_project_invoiceinput"
+    ],
+    "8": [
+      "api_keys_route",
+      "api_keys_route_get",
+      "api_keys_route_post",
+      "dashboard_route",
+      "dashboard_route_get",
+      "lib_prisma",
+      "lib_prisma_globalforprisma",
+      "register_route",
+      "register_route_post",
+      "register_route_registerschema",
+      "src_app_api_platforms_id_route_ts_id_route",
+      "src_app_api_platforms_id_route_ts_id_route_put",
+      "stats_route",
+      "stats_route_checkadmin",
+      "stats_route_get"
+    ],
+    "9": [
+      "app_page",
+      "app_page_home",
+      "check_route",
+      "check_route_get",
+      "import_route",
+      "import_route_post",
+      "lib_auth",
+      "lib_auth_handlers_auth_signin_signout",
+      "nextauth_route",
+      "platforms_route_checkadmin",
+      "src_app_api_admin_platforms_route_ts_platforms_route",
+      "src_app_api_admin_platforms_route_ts_platforms_route_get",
+      "tools_route",
+      "tools_route_get",
+      "tools_route_post"
+    ],
+    "10": [
+      "invoices_route",
+      "invoices_route_get",
+      "invoices_route_post",
+      "lib_utils_generateinvoicenumber",
+      "src_app_api_invoices_id_route_ts_id_route",
+      "src_app_api_invoices_id_route_ts_id_route_delete",
+      "src_app_api_invoices_id_route_ts_id_route_get",
+      "src_app_api_invoices_id_route_ts_id_route_put",
+      "validations_project_invoiceschema"
+    ],
+    "11": [
+      "payments_route",
+      "payments_route_get",
+      "payments_route_post",
+      "src_app_api_payments_id_route_ts_id_route",
+      "src_app_api_payments_id_route_ts_id_route_delete",
+      "src_app_api_payments_id_route_ts_id_route_get",
+      "src_app_api_payments_id_route_ts_id_route_put",
+      "validations_project_paymentschema"
+    ],
+    "12": [
+      "projects_route",
+      "projects_route_get",
+      "projects_route_post",
+      "src_app_api_projects_id_route_ts_id_route",
+      "src_app_api_projects_id_route_ts_id_route_delete",
+      "src_app_api_projects_id_route_ts_id_route_get",
+      "src_app_api_projects_id_route_ts_id_route_put",
+      "validations_project_projectschema"
+    ],
+    "13": [
+      "src_app_api_tasks_id_route_ts_id_route",
+      "src_app_api_tasks_id_route_ts_id_route_delete",
+      "src_app_api_tasks_id_route_ts_id_route_get",
+      "src_app_api_tasks_id_route_ts_id_route_put",
+      "tasks_route",
+      "tasks_route_get",
+      "tasks_route_post",
+      "validations_project_taskschema"
+    ],
+    "14": [
+      "app_layout",
+      "app_layout_metadata",
+      "app_layout_rootlayout",
+      "providers_index",
+      "providers_index_providers",
+      "providers_query_provider",
+      "providers_session_provider"
+    ],
+    "15": [
+      "backend_requirements_doc",
+      "development_flow_button_component",
+      "development_flow_doc",
+      "frontend_requirements_design_system",
+      "frontend_requirements_doc",
+      "new_requirements_doc",
+      "readme_projecthub"
+    ],
+    "16": [
+      "id_route_checkadmin",
+      "src_app_api_admin_users_id_route_ts_id_route",
+      "src_app_api_admin_users_id_route_ts_id_route_delete",
+      "src_app_api_admin_users_id_route_ts_id_route_get",
+      "src_app_api_admin_users_id_route_ts_id_route_put"
+    ],
+    "17": [
+      "best_ai_page",
+      "best_ai_page_bestaipage",
+      "best_ai_page_tabs",
+      "best_ai_page_tabtype"
+    ],
+    "18": [
+      "development_flow_phase1_setup",
+      "development_flow_phase2_backend",
+      "development_flow_phase3_frontend",
+      "development_flow_phase4_deploy"
+    ],
+    "19": [
+      "platforms_route_default_platforms",
+      "platforms_route_post",
+      "src_app_api_platforms_route_ts_platforms_route",
+      "src_app_api_platforms_route_ts_platforms_route_get"
+    ],
+    "20": [
+      "prisma_seed_best_lists",
+      "prisma_seed_best_lists_main",
+      "prisma_seed_best_lists_prisma",
+      "prisma_seed_best_lists_prismaclient"
+    ],
+    "21": [
+      "prisma_seed_tools",
+      "prisma_seed_tools_main",
+      "prisma_seed_tools_prisma",
+      "prisma_seed_tools_prismaclient"
+    ],
+    "22": [
+      "slug_route",
+      "slug_route_checkadmin",
+      "slug_route_delete",
+      "slug_route_put"
+    ],
+    "23": [
+      "src_app_api_api_keys_id_route_ts_id_route",
+      "src_app_api_api_keys_id_route_ts_id_route_delete",
+      "src_app_api_api_keys_id_route_ts_id_route_get",
+      "src_app_api_api_keys_id_route_ts_id_route_put"
+    ],
+    "24": [
+      "logs_route",
+      "logs_route_checkadmin",
+      "logs_route_get"
+    ],
+    "25": [
+      "tool_categories_route",
+      "tool_categories_route_get",
+      "tool_categories_route_post"
+    ],
+    "26": [
+      "users_route",
+      "users_route_checkadmin",
+      "users_route_get"
+    ],
+    "27": [
+      "eslintrc",
+      "eslintrc_extends"
+    ],
+    "28": [
+      "login_page",
+      "login_page_loginpage"
+    ],
+    "29": [
+      "new_requirements_bestaimodel",
+      "new_requirements_route_bestaimodels"
+    ],
+    "30": [
+      "new_requirements_bestcli",
+      "new_requirements_route_bestcli"
+    ],
+    "31": [
+      "new_requirements_bestide",
+      "new_requirements_route_bestide"
+    ],
+    "32": [
+      "new_requirements_bestorchestrator",
+      "new_requirements_route_bestorchestrator"
+    ],
+    "33": [
+      "register_page",
+      "register_page_registerpage"
+    ],
+    "34": [
+      "frontend_requirements_right_panel"
+    ],
+    "35": [
+      "next_config"
+    ],
+    "36": [
+      "next_svg_logo"
+    ],
+    "37": [
+      "nextauth_route_get_post"
+    ],
+    "38": [
+      "postcss_config"
+    ],
+    "39": [
+      "tailwind_config"
+    ],
+    "40": [
+      "vercel_svg_logo"
+    ]
+  },
+  "cohesion": {
+    "0": 0.07688828584350972,
+    "1": 0.07431693989071038,
+    "2": 0.10084033613445378,
+    "3": 0.06896551724137931,
+    "4": 0.15714285714285714,
+    "5": 0.1,
+    "6": 0.10526315789473684,
+    "7": 0.13725490196078433,
+    "8": 0.14285714285714285,
+    "9": 0.14285714285714285,
+    "10": 0.25,
+    "11": 0.25,
+    "12": 0.25,
+    "13": 0.25,
+    "14": 0.3333333333333333,
+    "15": 0.2857142857142857,
+    "16": 0.7,
+    "17": 0.5,
+    "18": 0.5,
+    "19": 0.5,
+    "20": 0.5,
+    "21": 0.5,
+    "22": 0.8333333333333334,
+    "23": 0.5,
+    "24": 1.0,
+    "25": 0.6666666666666666,
+    "26": 1.0,
+    "27": 1.0,
+    "28": 1.0,
+    "29": 1.0,
+    "30": 1.0,
+    "31": 1.0,
+    "32": 1.0,
+    "33": 1.0,
+    "34": 1.0,
+    "35": 1.0,
+    "36": 1.0,
+    "37": 1.0,
+    "38": 1.0,
+    "39": 1.0,
+    "40": 1.0
+  },
+  "gods": [
+    {
+      "id": "lib_admin_requireadmin",
+      "label": "requireAdmin()",
+      "degree": 27
+    },
+    {
+      "id": "lib_utils_cn",
+      "label": "cn()",
+      "degree": 26
+    },
+    {
+      "id": "ui_button_button",
+      "label": "Button",
+      "degree": 20
+    },
+    {
+      "id": "ui_input_input",
+      "label": "Input",
+      "degree": 17
+    },
+    {
+      "id": "lib_utils_formatdate",
+      "label": "formatDate()",
+      "degree": 16
+    },
+    {
+      "id": "lib_utils_formatcurrency",
+      "label": "formatCurrency()",
+      "degree": 15
+    },
+    {
+      "id": "tsconfig_compileroptions",
+      "label": "compilerOptions",
+      "degree": 15
+    },
+    {
+      "id": "backend_requirements_project",
+      "label": "Project Model",
+      "degree": 13
+    },
+    {
+      "id": "lib_utils_getdaysuntil",
+      "label": "getDaysUntil()",
+      "degree": 11
+    },
+    {
+      "id": "ui_badge_badge",
+      "label": "Badge()",
+      "degree": 9
+    }
+  ],
+  "surprises": [
+    {
+      "source": "DashboardPage()",
+      "target": "Navbar Component Spec",
+      "source_files": [
+        "src/app/(dashboard)/dashboard/page.tsx",
+        "docs/FRONTEND_REQUIREMENTS.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "crosses file types (code \u2194 doc); connects across different repos/directories; peripheral node `Navbar Component Spec` unexpectedly reaches hub `DashboardPage()`"
+    },
+    {
+      "source": "DashboardPage()",
+      "target": "Sidebar Component Spec",
+      "source_files": [
+        "src/app/(dashboard)/dashboard/page.tsx",
+        "docs/FRONTEND_REQUIREMENTS.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "crosses file types (code \u2194 doc); connects across different repos/directories; peripheral node `Sidebar Component Spec` unexpectedly reaches hub `DashboardPage()`"
+    },
+    {
+      "source": "AI Tools Features Requirements",
+      "target": "Backend Requirements",
+      "source_files": [
+        "NEW-REQUIREMENTS.md",
+        "docs/BACKEND_REQUIREMENTS.md"
+      ],
+      "confidence": "INFERRED",
+      "relation": "conceptually_related_to",
+      "why": "inferred connection - not explicitly stated in source; connects across different repos/directories"
+    },
+    {
+      "source": "ToolCategory Model",
+      "target": "User Model",
+      "source_files": [
+        "NEW-REQUIREMENTS.md",
+        "docs/BACKEND_REQUIREMENTS.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories; peripheral node `ToolCategory Model` unexpectedly reaches hub `User Model`"
+    },
+    {
+      "source": "AdminUsersPage()",
+      "target": "formatDate()",
+      "source_files": [
+        "src/app/admin/users/page.tsx",
+        "src/lib/utils.ts"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "calls",
+      "why": "bridges separate communities; peripheral node `AdminUsersPage()` unexpectedly reaches hub `formatDate()`"
+    }
+  ],
+  "tokens": {
+    "input": 70348,
+    "output": 9995
+  }
+}
